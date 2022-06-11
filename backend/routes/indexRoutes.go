@@ -10,6 +10,5 @@ func InitIndexRoutes() {
 }
 
 func indexRoute() {
-	//AddRoute("/", services.IndexService)
 	AddHandle("/", auth.ValidateJWT(services.IndexService))
 }
