@@ -16,6 +16,7 @@ func initQueries() {
 	log.Print("Initializing database queries")
 
 	database.InitLoginStatements()
+	database.InitSignUpStatements()
 
 	log.Print("Database queries initialized!")
 }
@@ -31,6 +32,7 @@ func initEnvironment() {
 func initRoutes() {
 	routes.InitIndexRoutes()
 	routes.InitLoginRoutes()
+	routes.InitSignUpRoutes()
 }
 
 func startServer() {
