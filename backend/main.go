@@ -28,6 +28,11 @@ func initEnvironment() {
 	}
 }
 
+func initRoutes() {
+	routes.InitIndexRoutes()
+	routes.InitLoginRoutes()
+}
+
 func startServer() {
 	var router = routes.GetRouter()
 
@@ -41,7 +46,7 @@ func main() {
 	routes.InitRouter()
 	database.InitDatabase()
 	initQueries()
-	routes.InitIndexRoutes()
+	initRoutes()
 	startServer()
 
 }
