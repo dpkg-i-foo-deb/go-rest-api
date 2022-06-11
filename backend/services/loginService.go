@@ -7,6 +7,8 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+
+	"golang.org/x/crypto/bcrypt"
 )
 
 func LoginService(writer http.ResponseWriter, request *http.Request) {
@@ -23,7 +25,20 @@ func LoginService(writer http.ResponseWriter, request *http.Request) {
 		return
 	}
 
-	err = database.LoginStatement.QueryRow(user.Password, user.Email).Scan(&queriedUser.Email)
+	//We recover both the user's email and password from database
+
+	err = database.LoginStatement.QueryRow(user.Email).Scan(&queriedUser.Email, &queriedUser.Password)
+
+	if err != nil {
+		log.Print("Failed login attempt: ", err)
+		writer.WriteHeader(http.StatusUnauthorized)
+		writer.Write([]byte("username or password incorrect"))
+		return
+	}
+
+	//We compare the stored password hash with its plain version
+
+	err = bcrypt.CompareHashAndPassword([]byte(queriedUser.Password), []byte(user.Password))
 
 	if err != nil {
 		log.Print("Failed login attempt: ", err)

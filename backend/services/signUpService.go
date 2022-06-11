@@ -11,8 +11,8 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-func hashPassword(password string) (string, error) {
-	bytes, err := bcrypt.GenerateFromPassword([]byte(password), 14)
+func HashPassword(password string) (string, error) {
+	bytes, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	return string(bytes), err
 }
 
@@ -30,7 +30,7 @@ func SignUpService(writer http.ResponseWriter, request *http.Request) {
 		return
 	}
 
-	user.Password, err = hashPassword(user.Password)
+	user.Password, err = HashPassword(user.Password)
 
 	if err != nil {
 		log.Print("Failed to hash a password", err)
