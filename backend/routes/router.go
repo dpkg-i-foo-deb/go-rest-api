@@ -25,3 +25,7 @@ func GetRouter() *mux.Router {
 func AddRoute(route string, function func(http.ResponseWriter, *http.Request)) {
 	router.HandleFunc(route, function)
 }
+
+func AddHandle(route string, handle http.Handler) {
+	router.Handle(route, handle)
+}

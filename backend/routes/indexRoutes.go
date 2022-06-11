@@ -1,11 +1,15 @@
 package routes
 
-import "backend/services"
+import (
+	"backend/auth"
+	"backend/services"
+)
 
 func InitIndexRoutes() {
 	indexRoute()
 }
 
 func indexRoute() {
-	AddRoute("/", services.IndexService)
+	//AddRoute("/", services.IndexService)
+	AddHandle("/", auth.ValidateJWT(services.IndexService))
 }
