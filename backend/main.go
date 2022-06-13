@@ -33,6 +33,7 @@ func initRoutes() {
 	routes.InitIndexRoutes()
 	routes.InitLoginRoutes()
 	routes.InitSignUpRoutes()
+	routes.InitRefreshRoutes()
 }
 
 func startServer() {
