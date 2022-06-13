@@ -18,10 +18,6 @@ func InitRouter() {
 	log.Print("Router initialized!")
 }
 
-func GetRouter() *mux.Router {
-	return Router
-}
-
 func AddRoute(route string, function func(http.ResponseWriter, *http.Request)) {
 	Router.HandleFunc(route, function)
 }
