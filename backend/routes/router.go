@@ -7,25 +7,25 @@ import (
 	"github.com/gorilla/mux"
 )
 
-var router *mux.Router
+var Router *mux.Router
 
 func InitRouter() {
 
 	log.Print("Initializing router...")
-	if router == nil {
-		router = mux.NewRouter().StrictSlash(true)
+	if Router == nil {
+		Router = mux.NewRouter().StrictSlash(true)
 	}
 	log.Print("Router initialized!")
 }
 
 func GetRouter() *mux.Router {
-	return router
+	return Router
 }
 
 func AddRoute(route string, function func(http.ResponseWriter, *http.Request)) {
-	router.HandleFunc(route, function)
+	Router.HandleFunc(route, function)
 }
 
 func AddHandle(route string, handle http.Handler) {
-	router.Handle(route, handle)
+	Router.Handle(route, handle)
 }

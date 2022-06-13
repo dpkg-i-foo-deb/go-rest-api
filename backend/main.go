@@ -37,10 +37,8 @@ func initRoutes() {
 }
 
 func startServer() {
-	var router = routes.GetRouter()
-
 	fmt.Print("Server is running on port" + os.Getenv("SERVER_PORT") + "\n")
-	log.Fatal(http.ListenAndServe(os.Getenv("SERVER_PORT"), router))
+	log.Fatal(http.ListenAndServe(os.Getenv("SERVER_PORT"), routes.Router))
 }
 
 func main() {
