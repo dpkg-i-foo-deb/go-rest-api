@@ -7,9 +7,6 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
-	"os"
-
-	"github.com/golang-jwt/jwt"
 )
 
 func RefreshToken(writer http.ResponseWriter, request *http.Request) {
@@ -18,6 +15,7 @@ func RefreshToken(writer http.ResponseWriter, request *http.Request) {
 	var jwtPair models.JWTPair
 	var newPair models.JWTPair
 	var response utils.GenericResponse
+	var isValid = false
 
 	err := decoder.Decode(&jwtPair)
 
@@ -27,27 +25,15 @@ func RefreshToken(writer http.ResponseWriter, request *http.Request) {
 		return
 	}
 
-	token, err := jwt.Parse(jwtPair.RefreshToken, func(t *jwt.Token) (interface{}, error) {
-		_, ok := t.Method.(*jwt.SigningMethodHMAC)
-		if !ok {
-			log.Print("Unexpected signing method detected")
-			response.Response = "Unexpected signing method detected"
-
-			json.NewEncoder(writer).Encode(response)
-			writer.WriteHeader(http.StatusUnauthorized)
-
-			return nil, nil
-		}
-		return []byte(os.Getenv("AUTH_KEY")), nil
-	})
+	isValid, err = auth.ValidateToken(jwtPair.RefreshToken)
 
 	if err != nil {
-		log.Print("Failed jwt refresh request")
+		log.Print("Failed jwt refresh request ", err)
 		writer.WriteHeader(http.StatusUnauthorized)
 		return
 	}
 
-	if token.Valid {
+	if isValid {
 		newPair, err = auth.GenerateJWTPair()
 
 		if err != nil {
@@ -58,6 +44,16 @@ func RefreshToken(writer http.ResponseWriter, request *http.Request) {
 
 		writer.WriteHeader(http.StatusOK)
 		json.NewEncoder(writer).Encode(newPair)
+	} else {
+
+		log.Print("Invalid refresh token received")
+		response.Response = "Refresh token is incorrect"
+
+		json.NewEncoder(writer).Encode(response)
+
+		writer.WriteHeader(http.StatusUnauthorized)
+		return
+
 	}
 
 }

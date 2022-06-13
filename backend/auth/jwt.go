@@ -2,6 +2,7 @@ package auth
 
 import (
 	"backend/models"
+	"errors"
 	"log"
 	"os"
 	"time"
@@ -40,4 +41,25 @@ func GenerateJWTPair() (models.JWTPair, error) {
 	pair.Token = t
 
 	return pair, nil
+}
+
+func ValidateToken(tokenString string) (bool, error) {
+
+	token, err := jwt.Parse(tokenString, func(t *jwt.Token) (interface{}, error) {
+		_, ok := t.Method.(*jwt.SigningMethodHMAC)
+
+		if !ok {
+
+			log.Print("Unexpected signing method")
+			return nil, nil
+		}
+
+		return []byte(os.Getenv("AUTH_KEY")), nil
+	})
+
+	if token.Valid {
+		return true, err
+	}
+
+	return false, errors.New("token is not valid")
 }
