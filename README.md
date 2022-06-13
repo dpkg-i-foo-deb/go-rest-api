@@ -19,6 +19,14 @@ base for my personal projects
 
 That is literally all, this language is awesome
 
+# How do I run this project?
+
+- Create the database using the provided script
+- Go to the "backend" directory run on the terminal...
+`go run .`
+
+That's all, the server should be running now!
+
 # Some extras
 
 I read it is nice to have some stuff ia .env file, so you need to create it
