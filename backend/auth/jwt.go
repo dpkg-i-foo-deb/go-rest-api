@@ -2,8 +2,11 @@ package auth
 
 import (
 	"backend/models"
+	"backend/models/utils"
+	"encoding/json"
 	"errors"
 	"log"
+	"net/http"
 	"os"
 	"time"
 
@@ -62,4 +65,47 @@ func ValidateToken(tokenString string) (bool, error) {
 	}
 
 	return false, errors.New("token is not valid")
+}
+
+func ValidateAndContinue(next func(writer http.ResponseWriter, request *http.Request)) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+
+		log.Print("Validating incoming request...")
+
+		var tokenPair models.JWTPair
+		decoder := json.NewDecoder(r.Body)
+		var response utils.GenericResponse
+		var isValid = false
+
+		err := decoder.Decode(&tokenPair)
+
+		if err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+			log.Print("The request contained invalid data")
+			response.Response = "Invalid data was received"
+			json.NewEncoder(w).Encode(response)
+			return
+		}
+
+		isValid, err = ValidateToken(tokenPair.Token)
+
+		if err != nil {
+			w.WriteHeader(http.StatusUnauthorized)
+			log.Print("The received token was invalid")
+			response.Response = "Your token is invalid or has already expired"
+			json.NewEncoder(w).Encode(response)
+			return
+		}
+
+		if isValid {
+			next(w, r)
+		} else {
+			w.WriteHeader(http.StatusUnauthorized)
+			log.Print("The received token was invalid")
+			response.Response = "Your token is invalid or has already expired"
+			json.NewEncoder(w).Encode(response)
+			return
+		}
+
+	})
 }
