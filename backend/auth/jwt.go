@@ -60,6 +60,10 @@ func ValidateToken(tokenString string) (bool, error) {
 		return []byte(os.Getenv("AUTH_KEY")), nil
 	})
 
+	if err != nil {
+		return false, errors.New("token is invalid")
+	}
+
 	if token.Valid {
 		return true, err
 	}
