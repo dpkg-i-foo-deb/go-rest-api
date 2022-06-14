@@ -8,7 +8,7 @@ import (
 	"net/http"
 )
 
-func CreateTask(writer http.ResponseWriter, request *http.Request) {
+func CreateTaskService(writer http.ResponseWriter, request *http.Request) {
 	decoder := json.NewDecoder(request.Body)
 	var task models.Task
 
