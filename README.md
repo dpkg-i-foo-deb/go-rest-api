@@ -19,6 +19,9 @@ base for my personal projects
 
 That is literally all, this language is awesome
 
+# Database ER model
+![alt text](/database/model.png)
+
 # How do I run this project?
 
 - Create the database using the provided script
