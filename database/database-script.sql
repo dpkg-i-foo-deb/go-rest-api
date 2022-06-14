@@ -8,7 +8,7 @@ CREATE TABLE IF NOT EXISTS public.task
     title character varying COLLATE pg_catalog."default" NOT NULL,
     description character varying COLLATE pg_catalog."default" NOT NULL,
     code integer NOT NULL GENERATED ALWAYS AS IDENTITY ( INCREMENT 1 START 1 MINVALUE 1 MAXVALUE 2147483647 CACHE 1 ),
-    subtask integer,
+    main_task integer,
     "user" character varying COLLATE pg_catalog."default",
     start_date date,
     due_date date,
@@ -32,7 +32,7 @@ COMMENT ON TABLE public."user"
     IS 'This is a database user';
 
 ALTER TABLE IF EXISTS public.task
-    ADD CONSTRAINT subtask_fk FOREIGN KEY (subtask)
+    ADD CONSTRAINT subtask_fk FOREIGN KEY (main_task)
     REFERENCES public.task (code) MATCH SIMPLE
     ON UPDATE NO ACTION
     ON DELETE NO ACTION
