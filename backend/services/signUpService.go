@@ -38,7 +38,7 @@ func SignUpService(writer http.ResponseWriter, request *http.Request) {
 		return
 	}
 
-	err = database.SignUpStatement.QueryRow(user.Email, user.Password).Scan(&user.Email)
+	err = database.SignUpStatement.QueryRow(user.Email, user.Password, user.FirstName, user.LastName).Scan(&user.Email)
 
 	if err != nil {
 		log.Print("Failed to register a new user", err)
