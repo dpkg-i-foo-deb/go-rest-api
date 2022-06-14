@@ -3,28 +3,33 @@
 BEGIN;
 
 
-CREATE TABLE IF NOT EXISTS public."user"
-(
-    email character varying NOT NULL,
-    password character varying NOT NULL,
-    PRIMARY KEY (email)
-);
-
-COMMENT ON TABLE public."user"
-    IS 'This is a database user';
-
 CREATE TABLE IF NOT EXISTS public.task
 (
-    title character varying NOT NULL,
-    description character varying NOT NULL,
-    code integer NOT NULL GENERATED ALWAYS AS IDENTITY,
+    title character varying COLLATE pg_catalog."default" NOT NULL,
+    description character varying COLLATE pg_catalog."default" NOT NULL,
+    code integer NOT NULL GENERATED ALWAYS AS IDENTITY ( INCREMENT 1 START 1 MINVALUE 1 MAXVALUE 2147483647 CACHE 1 ),
     subtask integer,
-    "user" character varying,
-    PRIMARY KEY (code)
+    "user" character varying COLLATE pg_catalog."default",
+    start_date date,
+    due_date date,
+    status boolean,
+    CONSTRAINT task_pkey PRIMARY KEY (code)
 );
 
 COMMENT ON TABLE public.task
     IS 'This is a task created by a user';
+
+CREATE TABLE IF NOT EXISTS public."user"
+(
+    email character varying COLLATE pg_catalog."default" NOT NULL,
+    password character varying COLLATE pg_catalog."default" NOT NULL,
+    first_name character varying NOT NULL,
+    last_name character varying,
+    CONSTRAINT user_pkey PRIMARY KEY (email)
+);
+
+COMMENT ON TABLE public."user"
+    IS 'This is a database user';
 
 ALTER TABLE IF EXISTS public.task
     ADD CONSTRAINT subtask_fk FOREIGN KEY (subtask)
