@@ -2,7 +2,7 @@
 
 This is a silly attempt to create a REST API using Go, as well as
 using Json Web Tokens to handle authenticated requests and generating
-refresh tokens to the user doesn't have to log in all the time
+refresh tokens so the user doesn't have to log in all the time
 
 As a little extra, this API communicates to a database and gets data
 using raw SQL statements
