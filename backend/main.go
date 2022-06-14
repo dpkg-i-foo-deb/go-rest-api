@@ -31,9 +31,7 @@ func initEnvironment() {
 
 func initRoutes() {
 	routes.InitIndexRoutes()
-	routes.InitLoginRoutes()
-	routes.InitSignUpRoutes()
-	routes.InitRefreshRoutes()
+	routes.InitUserRoutes()
 }
 
 func startServer() {
