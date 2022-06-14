@@ -1,6 +1,6 @@
 package models
 
-type task struct {
+type Task struct {
 	Code        int    `json:"code"`
 	Name        string `json:"name"`
 	Title       string `json:"title"`
