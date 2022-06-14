@@ -15,8 +15,7 @@ func initQueries() {
 
 	log.Print("Initializing database queries")
 
-	database.InitLoginStatements()
-	database.InitSignUpStatements()
+	database.InitUserStatements()
 
 	log.Print("Database queries initialized!")
 }
