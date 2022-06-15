@@ -3,16 +3,29 @@ package services
 import (
 	"backend/database"
 	"backend/models"
+	"bytes"
 	"encoding/json"
+	"io/ioutil"
 	"log"
 	"net/http"
 )
 
-func CreateTaskService(writer http.ResponseWriter, request *http.Request) {
-	decoder := json.NewDecoder(request.Body)
-	var task models.Task
+func CreateTaskService(writer http.ResponseWriter, request *http.Request, bodyBytes []byte) {
 
-	err := decoder.Decode(&task)
+	var task models.Task
+	body, err := ioutil.ReadAll(request.Body)
+
+	if err != nil {
+		log.Print("Could not save body contents ", err)
+		writer.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	reader := bytes.NewReader(body)
+
+	decoder := json.NewDecoder(reader)
+
+	err = decoder.Decode(&task)
 
 	if err != nil {
 		log.Print("Could not decode incoming create task request ", err)

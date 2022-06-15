@@ -32,6 +32,7 @@ func initEnvironment() {
 func initRoutes() {
 	routes.InitIndexRoutes()
 	routes.InitUserRoutes()
+	routes.InitTaskRoutes()
 }
 
 func startServer() {

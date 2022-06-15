@@ -2,7 +2,6 @@ package models
 
 type Task struct {
 	Code        int    `json:"code"`
-	Name        string `json:"name"`
 	Title       string `json:"title"`
 	Description string `json:"description"`
 	MainTask    int    `json:"main_task"`

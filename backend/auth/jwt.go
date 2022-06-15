@@ -73,7 +73,7 @@ func ValidateToken(tokenString string) (bool, error) {
 	return false, errors.New("token is not valid")
 }
 
-func ValidateAndContinue(next func(writer http.ResponseWriter, request *http.Request)) http.Handler {
+func ValidateAndContinue(next func(writer http.ResponseWriter, request *http.Request, bodyBytes []byte)) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
 		//We gotta save the request body because you can only use it once
@@ -121,7 +121,7 @@ func ValidateAndContinue(next func(writer http.ResponseWriter, request *http.Req
 		}
 
 		if isValid {
-			next(w, r)
+			next(w, r, bodyBytes)
 		} else {
 			w.WriteHeader(http.StatusUnauthorized)
 			log.Print("The received token was invalid")

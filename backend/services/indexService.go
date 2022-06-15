@@ -6,7 +6,7 @@ import (
 	"net/http"
 )
 
-func IndexService(writer http.ResponseWriter, request *http.Request) {
+func IndexService(writer http.ResponseWriter, request *http.Request, bodyBytes []byte) {
 	log.Printf("Index service accessed")
 	fmt.Fprint(writer, "Welcome!")
 }
