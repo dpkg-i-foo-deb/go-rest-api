@@ -12,7 +12,7 @@ func InitTaskStatements() {
 		(title,description,"user",start_date,due_date,status)
 		VALUES ($1, $2, $3, $4, $5, $6)
 		RETURNING 
-		title, description , "user",start_date ,due_date ,status ,main_task ,code `)
+		title, description , "user",start_date ,due_date ,status ,COALESCE(main_task,-1) ,code `)
 
 	if err != nil {
 		log.Fatal("Couldn't initialize task statements ", err)

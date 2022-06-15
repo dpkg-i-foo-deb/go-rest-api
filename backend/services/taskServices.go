@@ -13,19 +13,11 @@ import (
 func CreateTaskService(writer http.ResponseWriter, request *http.Request, bodyBytes []byte) {
 
 	var task models.Task
-	body, err := ioutil.ReadAll(request.Body)
 
-	if err != nil {
-		log.Print("Could not save body contents ", err)
-		writer.WriteHeader(http.StatusInternalServerError)
-		return
-	}
+	//Use the incoming request body bites instead of the request which is already closed
+	decoder := json.NewDecoder(ioutil.NopCloser(bytes.NewBuffer(bodyBytes)))
 
-	reader := bytes.NewReader(body)
-
-	decoder := json.NewDecoder(reader)
-
-	err = decoder.Decode(&task)
+	err := decoder.Decode(&task)
 
 	if err != nil {
 		log.Print("Could not decode incoming create task request ", err)
@@ -36,7 +28,8 @@ func CreateTaskService(writer http.ResponseWriter, request *http.Request, bodyBy
 	err = database.CreateTaskStatement.QueryRow(
 		task.Title, task.Description, task.User, task.StartDate, task.DueDate, task.Status,
 	).Scan(
-		&task.Title, task.Code, task.Description, task.User, task.StartDate, task.DueDate, task.Status,
+		&task.Title, &task.Description, &task.User,
+		&task.StartDate, &task.DueDate, &task.Status, &task.MainTask, &task.Code,
 	)
 
 	if err != nil {
@@ -47,5 +40,7 @@ func CreateTaskService(writer http.ResponseWriter, request *http.Request, bodyBy
 
 	writer.WriteHeader(http.StatusCreated)
 	json.NewEncoder(writer).Encode(task)
+
+	log.Print("New task created!")
 
 }
