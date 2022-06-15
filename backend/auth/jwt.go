@@ -3,8 +3,10 @@ package auth
 import (
 	"backend/models"
 	"backend/models/utils"
+	"bytes"
 	"encoding/json"
 	"errors"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
@@ -74,14 +76,31 @@ func ValidateToken(tokenString string) (bool, error) {
 func ValidateAndContinue(next func(writer http.ResponseWriter, request *http.Request)) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
-		log.Print("Validating incoming request...")
+		//We gotta save the request body because you can only use it once
+		bodyBytes, err := ioutil.ReadAll(r.Body)
 
 		var tokenPair models.JWTPair
-		decoder := json.NewDecoder(r.Body)
 		var response utils.GenericResponse
 		var isValid = false
 
-		err := decoder.Decode(&tokenPair)
+		//We must close the request body once we read it all
+		r.Body.Close()
+
+		//We also gotta check if we saved the body bytes correctly
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			log.Print("Could not save the request body bytes")
+			response.Response = "Something went wrong, please try again"
+			json.NewEncoder(w).Encode(response)
+			return
+		}
+
+		//The decoder won't use the request body, it will use a new io stream
+		decoder := json.NewDecoder(ioutil.NopCloser(bytes.NewBuffer(bodyBytes)))
+
+		log.Print("Validating incoming request...")
+
+		err = decoder.Decode(&tokenPair)
 
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
