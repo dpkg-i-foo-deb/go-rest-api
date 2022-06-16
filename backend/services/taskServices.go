@@ -27,6 +27,7 @@ func CreateTaskService(writer http.ResponseWriter, request *http.Request, bodyBy
 
 	err = database.CreateTaskStatement.QueryRow(
 		task.Title, task.Description, task.User, task.StartDate, task.DueDate, task.Status,
+		task.MainTask,
 	).Scan(
 		&task.Title, &task.Description, &task.User,
 		&task.StartDate, &task.DueDate, &task.Status, &task.MainTask, &task.Code,
