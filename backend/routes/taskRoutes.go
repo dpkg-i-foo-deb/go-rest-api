@@ -10,5 +10,5 @@ func InitTaskRoutes() {
 }
 
 func createTaskRoute() {
-	AddHandle("/create-task", auth.ValidateAndContinue(services.CreateTaskService))
+	AddHandle("/create-task", auth.ValidateAndContinue(services.CreateTaskService), "PUT")
 }

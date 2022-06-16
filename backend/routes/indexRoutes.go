@@ -10,5 +10,5 @@ func InitIndexRoutes() {
 }
 
 func indexRoute() {
-	AddHandle("/", auth.ValidateAndContinue(services.IndexService))
+	AddHandle("/", auth.ValidateAndContinue(services.IndexService), "GET")
 }

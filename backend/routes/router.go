@@ -18,10 +18,10 @@ func InitRouter() {
 	log.Print("Router initialized!")
 }
 
-func AddRoute(route string, function func(http.ResponseWriter, *http.Request)) {
-	Router.HandleFunc(route, function)
+func AddRoute(route string, function func(http.ResponseWriter, *http.Request), methods ...string) {
+	Router.HandleFunc(route, function).Methods(methods...)
 }
 
-func AddHandle(route string, handle http.Handler) {
-	Router.Handle(route, handle)
+func AddHandle(route string, handle http.Handler, methods ...string) {
+	Router.Handle(route, handle).Methods(methods...)
 }
