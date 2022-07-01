@@ -3,7 +3,6 @@ package auth
 import (
 	"backend/models"
 	"backend/models/utils"
-	"bytes"
 	"encoding/json"
 	"errors"
 	"io/ioutil"
@@ -92,21 +91,6 @@ func ValidateAndContinue(next func(writer http.ResponseWriter, request *http.Req
 			w.WriteHeader(http.StatusInternalServerError)
 			log.Print("Could not save the request body bytes")
 			response.Response = "Something went wrong, please try again"
-			json.NewEncoder(w).Encode(response)
-			return
-		}
-
-		//The decoder won't use the request body, it will use a new io stream
-		decoder := json.NewDecoder(ioutil.NopCloser(bytes.NewBuffer(bodyBytes)))
-
-		log.Print("Validating incoming request...")
-
-		err = decoder.Decode(&tokenPair)
-
-		if err != nil {
-			w.WriteHeader(http.StatusBadRequest)
-			log.Print("The request contained invalid data")
-			response.Response = "Invalid data was received"
 			json.NewEncoder(w).Encode(response)
 			return
 		}
