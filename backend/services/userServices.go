@@ -94,6 +94,13 @@ func LoginService(writer http.ResponseWriter, request *http.Request) {
 
 	pair, err = auth.GenerateJWTPair()
 
+	if err != nil {
+		log.Print("Login has failed_: ", err)
+		writer.WriteHeader(http.StatusInternalServerError)
+		writer.Write([]byte("Internal server error"))
+		return
+	}
+
 	//Once the JWT pair is generated, we can store it using cookies
 	accessCookie := &http.Cookie{
 		Name:     "access-token",
@@ -111,13 +118,6 @@ func LoginService(writer http.ResponseWriter, request *http.Request) {
 
 	http.SetCookie(writer, accessCookie)
 	http.SetCookie(writer, refreshCookie)
-
-	if err != nil {
-		log.Print("Login has failed_: ", err)
-		writer.WriteHeader(http.StatusInternalServerError)
-		writer.Write([]byte("Internal server error"))
-		return
-	}
 
 	writer.WriteHeader(http.StatusOK)
 	json.NewEncoder(writer).Encode(pair)
