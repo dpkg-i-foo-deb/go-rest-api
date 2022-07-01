@@ -103,7 +103,7 @@ func LoginService(writer http.ResponseWriter, request *http.Request) {
 	//Once the JWT pair is generated, we can store it using cookies
 	accessCookie := auth.GenerateAccessCookie(pair.Token)
 
-	refreshCookie := auth.GenerateAccessCookie(pair.RefreshToken)
+	refreshCookie := auth.GenerateRefreshCookie(pair.RefreshToken)
 
 	http.SetCookie(writer, accessCookie)
 	http.SetCookie(writer, refreshCookie)
