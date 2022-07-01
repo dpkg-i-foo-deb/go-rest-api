@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"time"
 
 	"golang.org/x/crypto/bcrypt"
 )
@@ -92,6 +93,16 @@ func LoginService(writer http.ResponseWriter, request *http.Request) {
 	}
 
 	pair, err = auth.GenerateJWTPair()
+
+	//Once the JWT pair is generated, we can store it using cookies
+	accessCookie := &http.Cookie{
+		Name:     "access-token",
+		Value:    pair.Token,
+		Expires:  time.Now().Add(time.Minute * 15),
+		HttpOnly: true,
+	}
+
+	http.SetCookie(writer, accessCookie)
 
 	if err != nil {
 		log.Print("Login has failed_: ", err)
