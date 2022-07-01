@@ -102,7 +102,15 @@ func LoginService(writer http.ResponseWriter, request *http.Request) {
 		HttpOnly: true,
 	}
 
+	refreshCookie := &http.Cookie{
+		Name:     "refresh-token",
+		Value:    pair.RefreshToken,
+		Expires:  time.Now().Add(time.Hour * 24),
+		HttpOnly: true,
+	}
+
 	http.SetCookie(writer, accessCookie)
+	http.SetCookie(writer, refreshCookie)
 
 	if err != nil {
 		log.Print("Login has failed_: ", err)
