@@ -120,7 +120,6 @@ func LoginService(writer http.ResponseWriter, request *http.Request) {
 	http.SetCookie(writer, refreshCookie)
 
 	writer.WriteHeader(http.StatusOK)
-	json.NewEncoder(writer).Encode(pair)
 
 }
 
