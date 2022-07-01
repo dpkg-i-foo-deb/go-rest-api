@@ -158,3 +158,13 @@ func GetTokenClaims(tokenString string) (*CustomClaims, error) {
 
 	return token.Claims.(*CustomClaims), nil
 }
+
+func EmailFromToken(tokeString string) (string, error) {
+	claims, err := GetTokenClaims(tokeString)
+
+	if err != nil {
+		return "", err
+	}
+
+	return claims.Email, nil
+}
