@@ -29,7 +29,7 @@ func CreateTaskService(writer http.ResponseWriter, request *http.Request, bodyBy
 
 	//We retrieve the token string from the request cookie
 
-	tokenString, err = auth.GetCookieValue(request, "auth-cookie")
+	tokenString, err = auth.GetCookieValue(request, "access-token")
 
 	if err != nil {
 		log.Print("Could not retrieve the token string from the cookie ", err)
@@ -49,7 +49,7 @@ func CreateTaskService(writer http.ResponseWriter, request *http.Request, bodyBy
 
 	//Finally, we set the task email using the claims
 
-	task.User = claims.Email
+	task.User = &claims.Email
 
 	if err != nil {
 		log.Print("Could not retrieve the auth cookie", err)
