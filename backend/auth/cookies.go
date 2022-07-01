@@ -1,0 +1,28 @@
+package auth
+
+import (
+	"net/http"
+	"time"
+)
+
+func GenerateAccessCookie(value string) *http.Cookie {
+	accessCookie := &http.Cookie{
+		Name:     "access-token",
+		HttpOnly: true,
+		Expires:  time.Now().Add(time.Minute * 15),
+		Value:    value,
+	}
+
+	return accessCookie
+}
+
+func GenerateRefreshCookie(value string) *http.Cookie {
+	refreshCookie := &http.Cookie{
+		Name:     "refresh-token",
+		HttpOnly: true,
+		Expires:  time.Now().Add(time.Hour * 24),
+		Value:    value,
+	}
+
+	return refreshCookie
+}

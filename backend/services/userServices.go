@@ -8,7 +8,6 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
-	"time"
 
 	"golang.org/x/crypto/bcrypt"
 )
@@ -102,19 +101,9 @@ func LoginService(writer http.ResponseWriter, request *http.Request) {
 	}
 
 	//Once the JWT pair is generated, we can store it using cookies
-	accessCookie := &http.Cookie{
-		Name:     "access-token",
-		Value:    pair.Token,
-		Expires:  time.Now().Add(time.Minute * 15),
-		HttpOnly: true,
-	}
+	accessCookie := auth.GenerateAccessCookie(pair.Token)
 
-	refreshCookie := &http.Cookie{
-		Name:     "refresh-token",
-		Value:    pair.RefreshToken,
-		Expires:  time.Now().Add(time.Hour * 24),
-		HttpOnly: true,
-	}
+	refreshCookie := auth.GenerateAccessCookie(pair.RefreshToken)
 
 	http.SetCookie(writer, accessCookie)
 	http.SetCookie(writer, refreshCookie)
@@ -129,6 +118,9 @@ func RefreshToken(writer http.ResponseWriter, request *http.Request) {
 	var newPair models.JWTPair
 	var response utils.GenericResponse
 	var isValid = false
+
+	var newRefreshCookie *http.Cookie
+	var newAcessCookie *http.Cookie
 
 	refreshCookie, err := request.Cookie("refresh-token")
 
@@ -158,7 +150,17 @@ func RefreshToken(writer http.ResponseWriter, request *http.Request) {
 		}
 
 		writer.WriteHeader(http.StatusOK)
-		json.NewEncoder(writer).Encode(newPair)
+
+		//Create the new cookies
+
+		newAcessCookie = auth.GenerateAccessCookie(newPair.Token)
+		newRefreshCookie = auth.GenerateRefreshCookie(newPair.RefreshToken)
+
+		//Set the new cookies
+
+		http.SetCookie(writer, newAcessCookie)
+		http.SetCookie(writer, newRefreshCookie)
+
 	} else {
 
 		log.Print("Invalid refresh token received")
