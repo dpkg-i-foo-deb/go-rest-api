@@ -82,6 +82,7 @@ func ValidateAndContinue(next func(writer http.ResponseWriter, request *http.Req
 		var tokenPair models.JWTPair
 		var response utils.GenericResponse
 		var isValid = false
+		var accessCookie *http.Cookie
 
 		//We must close the request body once we read it all
 		r.Body.Close()
@@ -109,6 +110,18 @@ func ValidateAndContinue(next func(writer http.ResponseWriter, request *http.Req
 			json.NewEncoder(w).Encode(response)
 			return
 		}
+
+		accessCookie, err = r.Cookie("access-token")
+
+		if err != nil {
+			w.WriteHeader(http.StatusForbidden)
+			log.Print("The request did not contain the access cookie")
+			response.Response = "The access cookie was not found"
+			json.NewEncoder(w).Encode(response)
+			return
+		}
+
+		tokenPair.Token = accessCookie.Value
 
 		isValid, err = ValidateToken(tokenPair.Token)
 
