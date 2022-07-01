@@ -125,19 +125,20 @@ func LoginService(writer http.ResponseWriter, request *http.Request) {
 
 func RefreshToken(writer http.ResponseWriter, request *http.Request) {
 
-	decoder := json.NewDecoder(request.Body)
 	var jwtPair models.JWTPair
 	var newPair models.JWTPair
 	var response utils.GenericResponse
 	var isValid = false
 
-	err := decoder.Decode(&jwtPair)
+	refreshCookie, err := request.Cookie("refresh-token")
 
 	if err != nil {
-		log.Print("Could not decode incoming refresh request", err)
-		writer.WriteHeader(http.StatusInternalServerError)
+		log.Print("The request did not contain a refresh cookie", err)
+		writer.WriteHeader(http.StatusForbidden)
 		return
 	}
+
+	jwtPair.RefreshToken = refreshCookie.Value
 
 	isValid, err = auth.ValidateToken(jwtPair.RefreshToken)
 
