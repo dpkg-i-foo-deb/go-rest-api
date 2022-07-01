@@ -149,8 +149,6 @@ func RefreshToken(writer http.ResponseWriter, request *http.Request) {
 			return
 		}
 
-		writer.WriteHeader(http.StatusOK)
-
 		//Create the new cookies
 
 		newAcessCookie = auth.GenerateAccessCookie(newPair.Token)
@@ -160,6 +158,8 @@ func RefreshToken(writer http.ResponseWriter, request *http.Request) {
 
 		http.SetCookie(writer, newAcessCookie)
 		http.SetCookie(writer, newRefreshCookie)
+
+		writer.WriteHeader(http.StatusOK)
 
 	} else {
 
