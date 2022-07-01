@@ -6,6 +6,7 @@ import (
 )
 
 var CreateTaskStatement *sql.Stmt
+var GetTaskStatement *sql.Stmt
 
 func InitTaskStatements() {
 	CreateTaskStatement, err = Database.Prepare(`INSERT INTO public.task 
@@ -17,4 +18,7 @@ func InitTaskStatements() {
 	if err != nil {
 		log.Fatal("Couldn't initialize task statements ", err)
 	}
+
+	GetTaskStatement, err = Database.Prepare(`SELECT title, description, code, main_task, "user", start_date, due_date, status
+											FROM public.task t WHERE t.code=$1 AND t.user =$2`)
 }
