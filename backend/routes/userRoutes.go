@@ -17,5 +17,5 @@ func signUpRoute() {
 }
 
 func refreshRoute() {
-	AddRoute("/refresh", services.RefreshToken, "POST")
+	AddRoute("/refresh", services.RefreshToken, "GET")
 }
