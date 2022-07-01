@@ -91,7 +91,7 @@ func LoginService(writer http.ResponseWriter, request *http.Request) {
 		return
 	}
 
-	pair, err = auth.GenerateJWTPair()
+	pair, err = auth.GenerateJWTPair(user.Email)
 
 	if err != nil {
 		log.Print("Login has failed_: ", err)
@@ -121,6 +121,7 @@ func RefreshToken(writer http.ResponseWriter, request *http.Request) {
 
 	var newRefreshCookie *http.Cookie
 	var newAcessCookie *http.Cookie
+	var claims *auth.CustomClaims
 
 	refreshCookie, err := request.Cookie("refresh-token")
 
@@ -141,7 +142,17 @@ func RefreshToken(writer http.ResponseWriter, request *http.Request) {
 	}
 
 	if isValid {
-		newPair, err = auth.GenerateJWTPair()
+
+		//Retreieve the user email from the token
+		claims, err = auth.GetTokenClaims(jwtPair.RefreshToken)
+
+		if err != nil {
+			log.Print("The token did not contain the required claims")
+			writer.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		newPair, err = auth.GenerateJWTPair(claims.Email)
 
 		if err != nil {
 			log.Print("Failed to refresh JWT pair")

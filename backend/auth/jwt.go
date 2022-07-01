@@ -14,16 +14,25 @@ import (
 	"github.com/golang-jwt/jwt"
 )
 
-func GenerateJWTPair() (models.JWTPair, error) {
+type CustomClaims struct {
+	Email string `json:"email"`
+	jwt.StandardClaims
+}
+
+func GenerateJWTPair(email string) (models.JWTPair, error) {
 
 	var pair models.JWTPair
 
 	log.Print("Generating new JWT pair")
 
-	token := jwt.New(jwt.SigningMethodHS256)
+	claims := CustomClaims{
+		email,
+		jwt.StandardClaims{
+			ExpiresAt: time.Now().Add(time.Minute * 15).Unix(),
+		},
+	}
 
-	claims := token.Claims.(jwt.MapClaims)
-	claims["exp"] = time.Now().Add(time.Minute * 15).Unix()
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
 	t, err := token.SignedString([]byte(os.Getenv("AUTH_KEY")))
 	if err != nil {
@@ -31,9 +40,14 @@ func GenerateJWTPair() (models.JWTPair, error) {
 		return pair, err
 	}
 
-	refreshToken := jwt.New(jwt.SigningMethodHS256)
-	rtClaims := refreshToken.Claims.(jwt.MapClaims)
-	rtClaims["exp"] = time.Now().Add(time.Hour * 24).Unix()
+	claims = CustomClaims{
+		email,
+		jwt.StandardClaims{
+			ExpiresAt: time.Now().Add(time.Hour * 24).Unix(),
+		},
+	}
+
+	refreshToken := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
 	rt, err := refreshToken.SignedString([]byte(os.Getenv("AUTH_KEY")))
 	if err != nil {
@@ -128,4 +142,19 @@ func ValidateAndContinue(next func(writer http.ResponseWriter, request *http.Req
 		}
 
 	})
+}
+
+func GetTokenClaims(tokenString string) (*CustomClaims, error) {
+	token, err := jwt.ParseWithClaims(tokenString, &CustomClaims{}, func(token *jwt.Token) (interface{}, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, errors.New("unexpected signing method")
+		}
+		return []byte(os.Getenv("AUTH_KEY")), nil
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	return token.Claims.(*CustomClaims), nil
 }
