@@ -1,6 +1,7 @@
 package services
 
 import (
+	"backend/auth"
 	"backend/database"
 	"backend/models"
 	"bytes"
@@ -13,7 +14,8 @@ import (
 func CreateTaskService(writer http.ResponseWriter, request *http.Request, bodyBytes []byte) {
 
 	var task models.Task
-
+	var claims *auth.CustomClaims
+	var tokenString string
 	//Use the incoming request body bites instead of the request which is already closed
 	decoder := json.NewDecoder(ioutil.NopCloser(bytes.NewBuffer(bodyBytes)))
 
@@ -23,6 +25,35 @@ func CreateTaskService(writer http.ResponseWriter, request *http.Request, bodyBy
 		log.Print("Could not decode incoming create task request ", err)
 		writer.WriteHeader(http.StatusInternalServerError)
 		return
+	}
+
+	//We retrieve the token string from the request cookie
+
+	tokenString, err = auth.GetCookieValue(request, "auth-cookie")
+
+	if err != nil {
+		log.Print("Could not retrieve the token string from the cookie ", err)
+		writer.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	//Now we retrieve the claims from the token
+
+	claims, err = auth.GetTokenClaims(tokenString)
+
+	if err != nil {
+		log.Print("Could not retrieve the claims from the token ", err)
+		writer.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	//Finally, we set the task email using the claims
+
+	task.User = claims.Email
+
+	if err != nil {
+		log.Print("Could not retrieve the auth cookie", err)
+		writer.WriteHeader(http.StatusInternalServerError)
 	}
 
 	err = database.CreateTaskStatement.QueryRow(

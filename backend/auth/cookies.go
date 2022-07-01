@@ -26,3 +26,13 @@ func GenerateRefreshCookie(value string) *http.Cookie {
 
 	return refreshCookie
 }
+
+func GetCookieValue(request *http.Request, cookieString string) (string, error) {
+	cookie, err := request.Cookie(cookieString)
+
+	if err != nil {
+		return "", err
+	}
+
+	return cookie.Value, nil
+}
