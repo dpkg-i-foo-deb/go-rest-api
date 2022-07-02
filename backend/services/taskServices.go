@@ -77,7 +77,7 @@ func CreateTaskService(writer http.ResponseWriter, request *http.Request, bodyBy
 
 }
 
-func GetTaskService(writer http.ResponseWriter, request *http.Request, bodyByes []byte) {
+func GetTaskService(writer http.ResponseWriter, request *http.Request, bodyBytes []byte) {
 
 	taskCode, err := strconv.ParseInt(mux.Vars(request)["code"], 10, 64)
 
@@ -134,7 +134,7 @@ func GetTaskService(writer http.ResponseWriter, request *http.Request, bodyByes 
 
 }
 
-func GetAllTasksService(writer http.ResponseWriter, request *http.Request, bodyByes []byte) {
+func GetAllTasksService(writer http.ResponseWriter, request *http.Request, bodyBytes []byte) {
 	var tokenString string
 
 	var userEmail string
@@ -204,6 +204,75 @@ func GetAllTasksService(writer http.ResponseWriter, request *http.Request, bodyB
 	json.NewEncoder(writer).Encode(allTasks)
 }
 
-func EditTaskService(writer http.ResponseWriter, request *http.Request, bodyByes []byte) {
+func EditTaskService(writer http.ResponseWriter, request *http.Request, bodyBytes []byte) {
+
+	var tokenString string
+
+	var userEmail string
+
+	var task models.Task
+
+	taskCode, err := strconv.ParseInt(mux.Vars(request)["code"], 10, 64)
+
+	var errorResponse utils.GenericResponse
+
+	var reader = ioutil.NopCloser(bytes.NewBuffer(bodyBytes))
+
+	if err != nil {
+		log.Print("The received code is not valid")
+		writer.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	tokenString, err = auth.GetCookieValue(request, "access-token")
+
+	if err != nil {
+		log.Print("Could not retrieve the access token")
+		writer.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	userEmail, err = auth.EmailFromToken(tokenString)
+
+	if err != nil {
+		log.Print("The token does not contain the user email")
+		writer.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	decoder := json.NewDecoder(reader)
+
+	err = decoder.Decode(&task)
+
+	if err != nil {
+		log.Print("Could not decode incoming request ", err)
+		writer.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	task.User = &userEmail
+
+	code := int(taskCode)
+
+	task.Code = &code
+
+	err = database.EditTaskStatement.QueryRow(task.Title,
+		task.Description, task.MainTask, task.StartDate,
+		task.DueDate, task.Status, task.Code, task.User).Scan(
+		&task.Title, &task.Description, &task.MainTask, &task.StartDate,
+		&task.DueDate, &task.Status, &task.Code,
+	)
+
+	if err != nil {
+		log.Print("Could not update a task ", err)
+		writer.WriteHeader(http.StatusBadRequest)
+		errorResponse.Response = "Could not update the task"
+
+		json.NewEncoder(writer).Encode(errorResponse)
+		return
+	}
+
+	writer.WriteHeader(http.StatusAccepted)
+	json.NewEncoder(writer).Encode(task)
 
 }
