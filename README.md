@@ -19,7 +19,7 @@ base for my personal projects
 
 That is literally all, this language is awesome
 
-# Database ER model
+# Database ER model (IT IS NOT FULLY IMPLEMENTED)
 ![alt text](/database/model.png)
 
 # How do I run this project?
