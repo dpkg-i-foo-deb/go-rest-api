@@ -10,6 +10,7 @@ func InitTaskRoutes() {
 	getTaskRoute()
 	getAllTasksRoute()
 	editTaskRoute()
+	deleteTaskRoute()
 }
 
 func createTaskRoute() {
@@ -26,4 +27,8 @@ func getAllTasksRoute() {
 
 func editTaskRoute() {
 	AddHandle("/tasks/{code}", auth.ValidateAndContinue(services.EditTaskService), "PATCH")
+}
+
+func deleteTaskRoute() {
+	AddHandle("/tasks/{code}", auth.ValidateAndContinue(services.DeleteTaskService), "DELETE")
 }

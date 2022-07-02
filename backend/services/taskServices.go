@@ -276,3 +276,70 @@ func EditTaskService(writer http.ResponseWriter, request *http.Request, bodyByte
 	json.NewEncoder(writer).Encode(task)
 
 }
+
+func DeleteTaskService(writer http.ResponseWriter, request *http.Request, bodyBytes []byte) {
+	var tokenString string
+
+	var userEmail string
+
+	var task models.Task
+
+	taskCode, err := strconv.ParseInt(mux.Vars(request)["code"], 10, 64)
+
+	var errorResponse utils.GenericResponse
+
+	if err != nil {
+		log.Print("The received code is not valid")
+		writer.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	tokenString, err = auth.GetCookieValue(request, "access-token")
+
+	if err != nil {
+		log.Print("Could not retrieve the access token")
+		writer.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	userEmail, err = auth.EmailFromToken(tokenString)
+
+	if err != nil {
+		log.Print("The token does not contain the user email")
+		writer.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	task.User = &userEmail
+
+	code := int(taskCode)
+
+	task.Code = &code
+
+	result, err := database.DeleteTaskStatement.Exec(task.Code, task.User)
+
+	if err != nil {
+		log.Print("Could not delete a task ", err)
+		writer.WriteHeader(http.StatusNotFound)
+
+		errorResponse.Response = "Task not found or you have no access to it"
+
+		json.NewEncoder(writer).Encode(errorResponse)
+		return
+	}
+
+	affectedRows, err := result.RowsAffected()
+
+	if err != nil || affectedRows == 0 {
+		log.Print("Could not delete a task ", err)
+		writer.WriteHeader(http.StatusNotFound)
+
+		errorResponse.Response = "Task not found or you have no access to it"
+
+		json.NewEncoder(writer).Encode(errorResponse)
+		return
+	}
+
+	writer.WriteHeader(http.StatusOK)
+
+}
