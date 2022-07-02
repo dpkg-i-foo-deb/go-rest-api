@@ -18,9 +18,8 @@ import (
 func CreateTaskService(writer http.ResponseWriter, request *http.Request, bodyBytes []byte) {
 
 	var task *models.Task
-	//var claims *auth.CustomClaims
 	var tokenString string
-	//Use the incoming request body bites instead of the request which is already closed
+	//Use the incoming request body bytes instead of the request which is already closed
 	decoder := json.NewDecoder(ioutil.NopCloser(bytes.NewBuffer(bodyBytes)))
 
 	err := decoder.Decode(&task)
@@ -50,8 +49,6 @@ func CreateTaskService(writer http.ResponseWriter, request *http.Request, bodyBy
 	}
 
 	//Finally, we set the task email using the claims
-
-	//task.User = &claims.Email
 
 	if err != nil {
 		log.Print("Could not retrieve the auth cookie", err)
