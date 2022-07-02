@@ -122,13 +122,21 @@ func GetTaskService(writer http.ResponseWriter, request *http.Request, bodyByes 
 
 		errorResponse.Response = "The task does not exist or you have no access to it"
 
+		writer.WriteHeader(http.StatusNotFound)
 		json.NewEncoder(writer).Encode(errorResponse)
 
-		writer.WriteHeader(http.StatusNotFound)
 		return
 	}
 
 	writer.WriteHeader(http.StatusFound)
 	json.NewEncoder(writer).Encode(task)
+
+}
+
+func GetAllTasksService(writer http.ResponseWriter, request *http.Request, bodyByes []byte) {
+
+}
+
+func EditTaskService(writer http.ResponseWriter, request *http.Request, bodyByes []byte) {
 
 }
