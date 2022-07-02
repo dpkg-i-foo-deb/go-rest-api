@@ -6,6 +6,7 @@ import (
 	"backend/models"
 	"backend/models/utils"
 	"bytes"
+	"database/sql"
 	"encoding/json"
 	"io/ioutil"
 	"log"
@@ -134,7 +135,73 @@ func GetTaskService(writer http.ResponseWriter, request *http.Request, bodyByes 
 }
 
 func GetAllTasksService(writer http.ResponseWriter, request *http.Request, bodyByes []byte) {
+	var tokenString string
 
+	var userEmail string
+
+	var task models.Task
+
+	var allTasks []models.Task
+
+	var errorResponse utils.GenericResponse
+
+	var rows *sql.Rows
+
+	tokenString, err := auth.GetCookieValue(request, "access-token")
+
+	if err != nil {
+		log.Print("Could not retrieve the access token")
+		writer.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	userEmail, err = auth.EmailFromToken(tokenString)
+
+	if err != nil {
+		log.Print("The token does not contain the user email")
+		writer.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	rows, err = database.GetAllTasksStatement.Query(userEmail)
+
+	if err != nil {
+		log.Print("Could not find any results for the request ", err)
+		writer.WriteHeader(http.StatusNotFound)
+
+		errorResponse.Response = "You have no tasks created"
+
+		writer.WriteHeader(http.StatusNotFound)
+		json.NewEncoder(writer).Encode(errorResponse)
+
+		return
+	}
+
+	defer rows.Close()
+
+	for rows.Next() {
+		err = rows.Scan(&task.Title, &task.Description, &task.Code,
+			&task.MainTask, &task.User, &task.StartDate, &task.DueDate, &task.Status)
+
+		if err != nil {
+			log.Print("Could not retrieve the query result", err)
+			writer.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		allTasks = append(allTasks, task)
+	}
+
+	err = rows.Err()
+
+	if err != nil {
+		log.Print("Could not retrieve the query result", err)
+		writer.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	writer.WriteHeader(http.StatusFound)
+	json.NewEncoder(writer).Encode(allTasks)
 }
 
 func EditTaskService(writer http.ResponseWriter, request *http.Request, bodyByes []byte) {
