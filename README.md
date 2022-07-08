@@ -45,6 +45,10 @@ It specifies the connection to the database using the postgres protocol
 ## AUTH_KEY
 It is the key you use to sign your Json Web Tokens, it should be a secret
 
+## ALLOWED_HOST
+It is the frontend host you want to allow to perform requests, it usually will be
+http://localhost:4200 (For Angular)
+
 # .env file example
 
 
@@ -52,4 +56,4 @@ It is the key you use to sign your Json Web Tokens, it should be a secret
 SERVER_PORT=":3000"
 CONNECTION_STRING="postgresql://tasks:tasks@localhost?sslmode=disable"
 AUTH_KEY="super-secret-auth-key"
-``
+ALLOWED_HOST="http://localhost:4200"
