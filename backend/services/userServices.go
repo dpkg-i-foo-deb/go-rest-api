@@ -5,6 +5,7 @@ import (
 	"backend/database"
 	"backend/models"
 	"backend/models/utils"
+	"backend/util"
 	"encoding/json"
 	"log"
 	"net/http"
@@ -18,6 +19,17 @@ func hashPassword(password string) (string, error) {
 }
 
 func SignUpService(writer http.ResponseWriter, request *http.Request) {
+
+	//If the requested method is options, the browser wants to negotiate CORS
+	if request.Method == http.MethodOptions {
+
+		//We enable CORS to allow the frontend to make requests
+		util.EnableCORS(&writer)
+
+		//And we return 200 ok
+		writer.WriteHeader(http.StatusOK)
+		return
+	}
 
 	decoder := json.NewDecoder(request.Body)
 	var user models.User
@@ -56,6 +68,18 @@ func SignUpService(writer http.ResponseWriter, request *http.Request) {
 }
 
 func LoginService(writer http.ResponseWriter, request *http.Request) {
+
+	//If the requested method is options, the browser wants to negotiate CORS
+	if request.Method == http.MethodOptions {
+
+		//We enable CORS to allow the frontend to make requests
+		util.EnableCORS(&writer)
+
+		//And we return 200 ok
+		writer.WriteHeader(http.StatusOK)
+		return
+	}
+
 	decoder := json.NewDecoder(request.Body)
 	var user models.User
 	var queriedUser models.User
@@ -113,6 +137,17 @@ func LoginService(writer http.ResponseWriter, request *http.Request) {
 }
 
 func RefreshToken(writer http.ResponseWriter, request *http.Request) {
+
+	//If the requested method is options, the browser wants to negotiate CORS
+	if request.Method == http.MethodOptions {
+
+		//We enable CORS to allow the frontend to make requests
+		util.EnableCORS(&writer)
+
+		//And we return 200 ok
+		writer.WriteHeader(http.StatusOK)
+		return
+	}
 
 	var jwtPair models.JWTPair
 	var newPair models.JWTPair
