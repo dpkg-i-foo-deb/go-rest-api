@@ -20,12 +20,11 @@ func hashPassword(password string) (string, error) {
 
 func SignUpService(writer http.ResponseWriter, request *http.Request) {
 
+	//We enable CORS to allow the frontend to make requests
+	util.EnableCORS(&writer)
+
 	//If the requested method is options, the browser wants to negotiate CORS
 	if request.Method == http.MethodOptions {
-
-		//We enable CORS to allow the frontend to make requests
-		util.EnableCORS(&writer)
-
 		//And we return 200 ok
 		writer.WriteHeader(http.StatusOK)
 		return
@@ -69,12 +68,11 @@ func SignUpService(writer http.ResponseWriter, request *http.Request) {
 
 func LoginService(writer http.ResponseWriter, request *http.Request) {
 
+	//We enable CORS to allow the frontend to make requests
+	util.EnableCORS(&writer)
+
 	//If the requested method is options, the browser wants to negotiate CORS
 	if request.Method == http.MethodOptions {
-
-		//We enable CORS to allow the frontend to make requests
-		util.EnableCORS(&writer)
-
 		//And we return 200 ok
 		writer.WriteHeader(http.StatusOK)
 		return
@@ -138,12 +136,11 @@ func LoginService(writer http.ResponseWriter, request *http.Request) {
 
 func RefreshToken(writer http.ResponseWriter, request *http.Request) {
 
+	//We enable CORS to allow the frontend to make requests
+	util.EnableCORS(&writer)
+
 	//If the requested method is options, the browser wants to negotiate CORS
 	if request.Method == http.MethodOptions {
-
-		//We enable CORS to allow the frontend to make requests
-		util.EnableCORS(&writer)
-
 		//And we return 200 ok
 		writer.WriteHeader(http.StatusOK)
 		return
