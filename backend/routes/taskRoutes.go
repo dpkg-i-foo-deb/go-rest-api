@@ -14,21 +14,21 @@ func InitTaskRoutes() {
 }
 
 func createTaskRoute() {
-	AddHandle("/tasks", auth.ValidateAndContinue(services.CreateTaskService), "PUT")
+	AddHandle("/tasks", auth.ValidateAndContinue(services.CreateTaskService), "PUT", "OPTIONS")
 }
 
 func getTaskRoute() {
-	AddHandle("/tasks/{code}", auth.ValidateAndContinue(services.GetTaskService), "GET")
+	AddHandle("/tasks/{code}", auth.ValidateAndContinue(services.GetTaskService), "GET", "OPTIONS")
 }
 
 func getAllTasksRoute() {
-	AddHandle("/tasks", auth.ValidateAndContinue(services.GetAllTasksService), "GET")
+	AddHandle("/tasks", auth.ValidateAndContinue(services.GetAllTasksService), "GET", "OPTIONS")
 }
 
 func editTaskRoute() {
-	AddHandle("/tasks/{code}", auth.ValidateAndContinue(services.EditTaskService), "PATCH")
+	AddHandle("/tasks/{code}", auth.ValidateAndContinue(services.EditTaskService), "PATCH", "OPTIONS")
 }
 
 func deleteTaskRoute() {
-	AddHandle("/tasks/{code}", auth.ValidateAndContinue(services.DeleteTaskService), "DELETE")
+	AddHandle("/tasks/{code}", auth.ValidateAndContinue(services.DeleteTaskService), "DELETE", "OPTIONS")
 }

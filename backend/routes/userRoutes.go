@@ -9,13 +9,13 @@ func InitUserRoutes() {
 }
 
 func loginroute() {
-	AddRoute("/login", services.LoginService, "POST")
+	AddRoute("/login", services.LoginService, "POST", "OPTIONS")
 }
 
 func signUpRoute() {
-	AddRoute("/sign-up", services.SignUpService, "POST")
+	AddRoute("/sign-up", services.SignUpService, "POST", "OPTIONS")
 }
 
 func refreshRoute() {
-	AddRoute("/refresh", services.RefreshToken, "GET")
+	AddRoute("/refresh", services.RefreshToken, "GET", "OPTIONS")
 }
