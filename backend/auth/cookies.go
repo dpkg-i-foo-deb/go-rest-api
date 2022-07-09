@@ -11,6 +11,9 @@ func GenerateAccessCookie(value string) *http.Cookie {
 		HttpOnly: true,
 		Expires:  time.Now().Add(time.Minute * 15),
 		Value:    value,
+		Path:     "/",
+		SameSite: http.SameSiteNoneMode,
+		Secure:   true,
 	}
 
 	return accessCookie
@@ -22,6 +25,9 @@ func GenerateRefreshCookie(value string) *http.Cookie {
 		HttpOnly: true,
 		Expires:  time.Now().Add(time.Hour * 24),
 		Value:    value,
+		Path:     "/",
+		SameSite: http.SameSiteNoneMode,
+		Secure:   true,
 	}
 
 	return refreshCookie
