@@ -6,6 +6,7 @@ import (
 	"backend/models"
 	"backend/models/utils"
 	"backend/util"
+	"database/sql"
 	"encoding/json"
 	"log"
 	"net/http"
@@ -95,6 +96,11 @@ func LoginService(writer http.ResponseWriter, request *http.Request) {
 
 	err = database.LoginStatement.QueryRow(user.Email).Scan(&queriedUser.Email, &queriedUser.Password)
 
+	if err == sql.ErrNoRows {
+		writer.WriteHeader(http.StatusUnauthorized)
+		return
+	}
+
 	if err != nil {
 		log.Print("Failed login attempt: ", err)
 		writer.WriteHeader(http.StatusUnauthorized)
@@ -134,6 +140,31 @@ func LoginService(writer http.ResponseWriter, request *http.Request) {
 
 }
 
+func SignOutService(writer http.ResponseWriter, request *http.Request, bodyBytes []byte) {
+	var response utils.GenericResponse
+
+	var newRefreshCookie *http.Cookie
+	var newAcessCookie *http.Cookie
+
+	//Create the new cookies
+
+	newAcessCookie = auth.GenerateFakeAccessCookie()
+	newRefreshCookie = auth.GenerateFakeRefreshCookie()
+
+	//Set the new cookies
+
+	http.SetCookie(writer, newAcessCookie)
+	http.SetCookie(writer, newRefreshCookie)
+
+	writer.WriteHeader(http.StatusOK)
+
+	response.Response = "Signed Out..."
+	json.NewEncoder(writer).Encode(response)
+
+	return
+
+}
+
 func RefreshToken(writer http.ResponseWriter, request *http.Request) {
 
 	//We enable CORS to allow the frontend to make requests
@@ -158,8 +189,8 @@ func RefreshToken(writer http.ResponseWriter, request *http.Request) {
 	refreshCookie, err := request.Cookie("refresh-token")
 
 	if err != nil {
-		log.Print("The request did not contain a refresh cookie", err)
-		writer.WriteHeader(http.StatusForbidden)
+		log.Print("The request did not contain a refresh cookie ", err)
+		writer.WriteHeader(http.StatusUnauthorized)
 		return
 	}
 
@@ -203,6 +234,9 @@ func RefreshToken(writer http.ResponseWriter, request *http.Request) {
 		http.SetCookie(writer, newRefreshCookie)
 
 		writer.WriteHeader(http.StatusOK)
+
+		response.Response = "refreshed"
+		json.NewEncoder(writer).Encode(response)
 
 	} else {
 

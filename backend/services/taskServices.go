@@ -40,8 +40,8 @@ func CreateTaskService(writer http.ResponseWriter, request *http.Request, bodyBy
 	}
 
 	//We retrieve the token string from the request cookie
-	task.User = new(string)
-	*task.User, err = auth.EmailFromToken(tokenString)
+	task.UserEmail = new(string)
+	*task.UserEmail, err = auth.EmailFromToken(tokenString)
 
 	if err != nil {
 		log.Print("Could not retrieve the user's identity ", err)
@@ -57,10 +57,10 @@ func CreateTaskService(writer http.ResponseWriter, request *http.Request, bodyBy
 	}
 
 	err = database.CreateTaskStatement.QueryRow(
-		task.Title, task.Description, task.User, task.StartDate, task.DueDate, task.Status,
+		task.Title, task.Description, task.UserEmail, task.StartDate, task.DueDate, task.Status,
 		task.MainTask,
 	).Scan(
-		&task.Title, &task.Description, &task.User,
+		&task.Title, &task.Description, &task.UserEmail,
 		&task.StartDate, &task.DueDate, &task.Status, &task.MainTask, &task.Code,
 	)
 
@@ -115,7 +115,7 @@ func GetTaskService(writer http.ResponseWriter, request *http.Request, bodyBytes
 		taskCode, userEmail,
 	).Scan(
 		&task.Title, &task.Description, &task.Code,
-		&task.MainTask, &task.User, &task.StartDate, &task.DueDate, &task.Status,
+		&task.MainTask, &task.UserEmail, &task.StartDate, &task.DueDate, &task.Status,
 	)
 
 	if err != nil {
@@ -181,7 +181,7 @@ func GetAllTasksService(writer http.ResponseWriter, request *http.Request, bodyB
 
 	for rows.Next() {
 		err = rows.Scan(&task.Title, &task.Description, &task.Code,
-			&task.MainTask, &task.User, &task.StartDate, &task.DueDate, &task.Status)
+			&task.MainTask, &task.UserEmail, &task.StartDate, &task.DueDate, &task.Status)
 
 		if err != nil {
 			log.Print("Could not retrieve the query result", err)
@@ -200,7 +200,7 @@ func GetAllTasksService(writer http.ResponseWriter, request *http.Request, bodyB
 		return
 	}
 
-	writer.WriteHeader(http.StatusFound)
+	writer.WriteHeader(http.StatusOK)
 	json.NewEncoder(writer).Encode(allTasks)
 }
 
@@ -250,7 +250,7 @@ func EditTaskService(writer http.ResponseWriter, request *http.Request, bodyByte
 		return
 	}
 
-	task.User = &userEmail
+	task.UserEmail = &userEmail
 
 	code := int(taskCode)
 
@@ -258,7 +258,7 @@ func EditTaskService(writer http.ResponseWriter, request *http.Request, bodyByte
 
 	err = database.EditTaskStatement.QueryRow(task.Title,
 		task.Description, task.MainTask, task.StartDate,
-		task.DueDate, task.Status, task.Code, task.User).Scan(
+		task.DueDate, task.Status, task.Code, task.UserEmail).Scan(
 		&task.Title, &task.Description, &task.MainTask, &task.StartDate,
 		&task.DueDate, &task.Status, &task.Code,
 	)
@@ -310,13 +310,13 @@ func DeleteTaskService(writer http.ResponseWriter, request *http.Request, bodyBy
 		return
 	}
 
-	task.User = &userEmail
+	task.UserEmail = &userEmail
 
 	code := int(taskCode)
 
 	task.Code = &code
 
-	result, err := database.DeleteTaskStatement.Exec(task.Code, task.User)
+	result, err := database.DeleteTaskStatement.Exec(task.Code, task.UserEmail)
 
 	if err != nil {
 		log.Print("Could not delete a task ", err)

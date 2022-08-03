@@ -33,6 +33,35 @@ func GenerateRefreshCookie(value string) *http.Cookie {
 	return refreshCookie
 }
 
+func GenerateFakeAccessCookie() *http.Cookie {
+	accessCookie := &http.Cookie{
+		Name:     "access-token",
+		HttpOnly: true,
+		Expires:  time.Now().Add(time.Minute),
+		Value:    "",
+		Path:     "/",
+		SameSite: http.SameSiteNoneMode,
+		Secure:   true,
+	}
+
+	return accessCookie
+
+}
+func GenerateFakeRefreshCookie() *http.Cookie {
+	refreshCookie := &http.Cookie{
+		Name:     "refresh-token",
+		HttpOnly: true,
+		Expires:  time.Now().Add(time.Minute),
+		Value:    "",
+		Path:     "/",
+		SameSite: http.SameSiteNoneMode,
+		Secure:   true,
+	}
+
+	return refreshCookie
+
+}
+
 func GetCookieValue(request *http.Request, cookieString string) (string, error) {
 	cookie, err := request.Cookie(cookieString)
 

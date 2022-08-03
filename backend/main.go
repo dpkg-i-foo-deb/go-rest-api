@@ -36,6 +36,7 @@ func initRoutes() {
 }
 
 func startServer() {
+
 	fmt.Print("Server is running on port" + os.Getenv("SERVER_PORT") + "\n")
 	log.Fatal(http.ListenAndServe(os.Getenv("SERVER_PORT"), routes.Router))
 }

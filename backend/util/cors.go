@@ -13,4 +13,5 @@ func EnableCORS(writer *http.ResponseWriter) {
 	(*writer).Header().Set("Access-Control-Allow-Origin", os.Getenv("ALLOWED_HOST"))
 	(*writer).Header().Set("Access-Control-Allow-Headers", "Content-Type")
 	(*writer).Header().Set("Access-Control-Allow-Credentials", "true")
+	(*writer).Header().Set("Access-Control-Allow-Methods", "GET,HEAD,OPTIONS,POST,PUT,PATCH,DELETE")
 }

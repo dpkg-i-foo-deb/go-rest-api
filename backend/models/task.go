@@ -8,5 +8,5 @@ type Task struct {
 	StartDate   string  `json:"start_date"`
 	DueDate     string  `json:"due_date"`
 	Status      bool    `json:"status"`
-	User        *string `json:"user"`
+	UserEmail   *string `json:"user_email"`
 }

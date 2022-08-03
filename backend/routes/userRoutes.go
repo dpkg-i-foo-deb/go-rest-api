@@ -1,11 +1,15 @@
 package routes
 
-import "backend/services"
+import (
+	"backend/auth"
+	"backend/services"
+)
 
 func InitUserRoutes() {
 	loginroute()
 	signUpRoute()
 	refreshRoute()
+	signOutRoute()
 }
 
 func loginroute() {
@@ -18,4 +22,10 @@ func signUpRoute() {
 
 func refreshRoute() {
 	AddRoute("/refresh", services.RefreshToken, "GET", "OPTIONS")
+}
+
+func signOutRoute() {
+
+	AddHandle("/sign-out", auth.ValidateAndContinue(services.SignOutService), "POST", "OPTIONS")
+
 }
