@@ -3,11 +3,9 @@ package main
 import (
 	"backend/database"
 	"backend/routes"
-	"fmt"
 	"log"
-	"net/http"
-	"os"
 
+	"github.com/gofiber/fiber/v2"
 	"github.com/joho/godotenv"
 )
 
@@ -36,18 +34,17 @@ func initRoutes() {
 }
 
 func startServer() {
-
-	fmt.Print("Server is running on port" + os.Getenv("SERVER_PORT") + "\n")
-	log.Fatal(http.ListenAndServe(os.Getenv("SERVER_PORT"), routes.Router))
+	app := fiber.New()
+	log.Fatal(app.Listen(":3000"))
 }
 
 func main() {
 
-	initEnvironment()
-	routes.InitRouter()
-	database.InitDatabase()
-	initQueries()
-	initRoutes()
+	//initEnvironment()
+	//routes.InitRouter()
+	//database.InitDatabase()
+	//initQueries()
+	//initRoutes()
 	startServer()
 
 }
