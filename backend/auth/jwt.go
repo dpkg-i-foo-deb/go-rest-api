@@ -3,15 +3,15 @@ package auth
 import (
 	"backend/models"
 	"backend/models/utils"
-	"backend/util"
-	"encoding/json"
+
 	"errors"
-	"io/ioutil"
+
 	"log"
-	"net/http"
+
 	"os"
 	"time"
 
+	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt"
 )
 
@@ -87,73 +87,26 @@ func ValidateToken(tokenString string) (bool, error) {
 	return false, errors.New("token is not valid")
 }
 
-func ValidateAndContinue(next func(writer http.ResponseWriter, request *http.Request, bodyBytes []byte)) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+func ValidateAndContinue(connection *fiber.Ctx) error {
 
-		//If the requested method is options, the browser wants to negotiate CORS
-		//We enable CORS to allow the frontend to make requests
-		util.EnableCORS(&w)
+	accessToken := connection.Cookies("access-token")
+	var response utils.GenericResponse
+	response.Response = "The access token was not present"
 
-		//If the requested method is options, the browser wants to negotiate CORS
-		if r.Method == http.MethodOptions {
-			//And we return 200 ok
-			w.WriteHeader(http.StatusOK)
-			return
-		}
+	if accessToken == "" {
+		connection.Status(fiber.StatusUnauthorized).JSON(response)
+		return nil
+	}
 
-		//We gotta save the request body because you can only use it once
-		bodyBytes, err := ioutil.ReadAll(r.Body)
+	isValid, err := ValidateToken(accessToken)
 
-		var tokenPair models.JWTPair
-		var response utils.GenericResponse
-		var isValid = false
-		var accessCookie *http.Cookie
+	if isValid && err == nil {
+		return nil
+	}
+	response.Response = "The access token is not valid or has expired"
+	connection.Status(fiber.StatusUnauthorized).JSON(response)
+	return nil
 
-		//We must close the request body once we read it all
-		r.Body.Close()
-
-		//We also gotta check if we saved the body bytes correctly
-		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			log.Print("Could not save the request body bytes")
-			response.Response = "Something went wrong, please try again"
-			json.NewEncoder(w).Encode(response)
-			return
-		}
-
-		accessCookie, err = r.Cookie("access-token")
-
-		if err != nil {
-			w.WriteHeader(http.StatusUnauthorized)
-			log.Print("The request did not contain the access cookie")
-			response.Response = "The access cookie was not found"
-			json.NewEncoder(w).Encode(response)
-			return
-		}
-
-		tokenPair.Token = accessCookie.Value
-
-		isValid, err = ValidateToken(tokenPair.Token)
-
-		if err != nil {
-			w.WriteHeader(http.StatusUnauthorized)
-			log.Print("The received token was invalid")
-			response.Response = "Your token is invalid or has already expired"
-			json.NewEncoder(w).Encode(response)
-			return
-		}
-
-		if isValid {
-			next(w, r, bodyBytes)
-		} else {
-			w.WriteHeader(http.StatusUnauthorized)
-			log.Print("The received token was invalid")
-			response.Response = "Your token is invalid or has already expired"
-			json.NewEncoder(w).Encode(response)
-			return
-		}
-
-	})
 }
 
 func GetTokenClaims(tokenString string) (*CustomClaims, error) {

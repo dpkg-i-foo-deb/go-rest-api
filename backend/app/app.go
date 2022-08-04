@@ -20,15 +20,14 @@ func InitApp() {
 	}))
 
 	app.Use(cors.New(cors.Config{
-	
-		AllowCredentials: true,
-		AllowOrigins:"*",
-		AllowMethods: "GET ,POST,OPTIONS,PUT,DELETE,PATCH",
-		Next: nil,
-		AllowHeaders: "",
-		ExposeHeaders: "",
-		MaxAge: 0,
 
+		AllowCredentials: true,
+		AllowOrigins:     "*",
+		AllowMethods:     "GET ,POST,OPTIONS,PUT,DELETE,PATCH",
+		Next:             nil,
+		AllowHeaders:     "",
+		ExposeHeaders:    "",
+		MaxAge:           0,
 	}))
 
 }
@@ -39,14 +38,14 @@ func StartApp() {
 
 }
 
-func AddGet(route string, service func(connection *fiber.Ctx) error) {
+func AddGet(route string, handlers ...fiber.Handler) {
 
-	app.Get(route, service)
+	app.Get(route, handlers...)
 
 }
 
-func AddPost(route string, service func(connection *fiber.Ctx) error) {
+func AddPost(route string, handlers ...fiber.Handler) {
 
-	app.Post(route, service)
+	app.Post(route, handlers...)
 
 }
