@@ -35,28 +35,28 @@ func GenerateRefreshCookie(value string) *fiber.Cookie {
 	return refreshCookie
 }
 
-func GenerateFakeAccessCookie() *http.Cookie {
-	accessCookie := &http.Cookie{
+func GenerateFakeAccessCookie() *fiber.Cookie {
+	accessCookie := &fiber.Cookie{
 		Name:     "access-token",
-		HttpOnly: true,
+		HTTPOnly: true,
 		Expires:  time.Now().Add(time.Minute),
 		Value:    "",
 		Path:     "/",
-		SameSite: http.SameSiteNoneMode,
+		SameSite: fiber.CookieSameSiteNoneMode,
 		Secure:   true,
 	}
 
 	return accessCookie
 
 }
-func GenerateFakeRefreshCookie() *http.Cookie {
-	refreshCookie := &http.Cookie{
+func GenerateFakeRefreshCookie() *fiber.Cookie {
+	refreshCookie := &fiber.Cookie{
 		Name:     "refresh-token",
-		HttpOnly: true,
+		HTTPOnly: true,
 		Expires:  time.Now().Add(time.Minute),
 		Value:    "",
 		Path:     "/",
-		SameSite: http.SameSiteNoneMode,
+		SameSite: fiber.CookieSameSiteNoneMode,
 		Secure:   true,
 	}
 
