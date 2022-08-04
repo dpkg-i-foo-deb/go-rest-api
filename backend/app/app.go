@@ -5,24 +5,29 @@ import (
 	"os"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/logger"
 )
 
-var App *fiber.App
+var app *fiber.App
 
 func InitApp() {
 
-	App = fiber.New()
+	app = fiber.New()
+
+	app.Use(logger.New(logger.Config{
+		Format: "[${ip}]:${port} ${status} - ${method} ${path}\n",
+	}))
 
 }
 
 func StartApp() {
 
-	log.Fatal(App.Listen(os.Getenv("SERVER_PORT")))
+	log.Fatal(app.Listen(os.Getenv("SERVER_PORT")))
 
 }
 
 func AddGet(route string, service func(connection *fiber.Ctx) error) {
 
-	App.Get(route, service)
+	app.Get(route, service)
 
 }
