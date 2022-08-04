@@ -13,12 +13,13 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gorilla/mux"
 )
 
-func CreateTaskService(connection *fiber.Ctx)error {
+func CreateTaskService(connection *fiber.Ctx) error {
 
 	var task *models.Task
 	var tokenString string
@@ -27,8 +28,8 @@ func CreateTaskService(connection *fiber.Ctx)error {
 	err := decoder.Decode(&task)
 
 	if err != nil {
-		
-		response.Response="The task is malformed"
+
+		response.Response = "The task is malformed"
 		connection.Status(fiber.StatusBadRequest).JSON(response)
 		return nil
 
@@ -41,7 +42,7 @@ func CreateTaskService(connection *fiber.Ctx)error {
 	*task.UserEmail, err = auth.EmailFromToken(tokenString)
 
 	if err != nil {
-	
+
 		return errors.New("Could not create the task, try again later")
 
 	}
@@ -55,9 +56,9 @@ func CreateTaskService(connection *fiber.Ctx)error {
 	)
 
 	if err != nil {
-	
+
 		return errors.New("Could not create the task, try again later")
-	
+
 	}
 
 	connection.Status(fiber.StatusCreated).JSON(task)
@@ -75,7 +76,7 @@ func GetTaskService(connection *fiber.Ctx) error {
 
 	var response utils.GenericResponse
 
-	taskCode, err := connection.ParamsInt("task-code")
+	taskCode, err := connection.ParamsInt("code")
 
 	if taskCode == 0 || err != nil {
 
@@ -84,7 +85,7 @@ func GetTaskService(connection *fiber.Ctx) error {
 		return nil
 	}
 
-	tokenString = connection.Cookies("acces-token")
+	tokenString = connection.Cookies("access-token")
 
 	userEmail, err = auth.EmailFromToken(tokenString)
 
@@ -110,7 +111,8 @@ func GetTaskService(connection *fiber.Ctx) error {
 	return nil
 }
 
-func GetAllTasksService(writer http.ResponseWriter, request *http.Request, bodyBytes []byte) {
+func GetAllTasksService(connection *fiber.Ctx) error {
+	time.Sleep(20000000)
 	var tokenString string
 
 	var userEmail string
@@ -119,65 +121,47 @@ func GetAllTasksService(writer http.ResponseWriter, request *http.Request, bodyB
 
 	var allTasks []models.Task
 
-	var errorResponse utils.GenericResponse
+	var response utils.GenericResponse
 
 	var rows *sql.Rows
 
-	tokenString, err := auth.GetCookieValue(request, "access-token")
+	tokenString = connection.Cookies("access-token")
+
+	userEmail, err := auth.EmailFromToken(tokenString)
 
 	if err != nil {
-		log.Print("Could not retrieve the access token")
-		writer.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
-	userEmail, err = auth.EmailFromToken(tokenString)
-
-	if err != nil {
-		log.Print("The token does not contain the user email")
-		writer.WriteHeader(http.StatusBadRequest)
-		return
+		return errors.New("Could not get the user's email from the token")
 	}
 
 	rows, err = database.GetAllTasksStatement.Query(userEmail)
 
 	if err != nil {
-		log.Print("Could not find any results for the request ", err)
-		writer.WriteHeader(http.StatusNotFound)
-
-		errorResponse.Response = "You have no tasks created"
-
-		writer.WriteHeader(http.StatusNotFound)
-		json.NewEncoder(writer).Encode(errorResponse)
-
-		return
+		response.Response = "You have no tasks created"
+		connection.Status(fiber.StatusOK).JSON(allTasks)
+		return nil
 	}
 
 	defer rows.Close()
-
 	for rows.Next() {
 		err = rows.Scan(&task.Title, &task.Description, &task.Code,
 			&task.MainTask, &task.UserEmail, &task.StartDate, &task.DueDate, &task.Status)
 
 		if err != nil {
-			log.Print("Could not retrieve the query result", err)
-			writer.WriteHeader(http.StatusInternalServerError)
-			return
+			return errors.New("Could not retrieve your tasks")
 		}
-
 		allTasks = append(allTasks, task)
+
 	}
 
 	err = rows.Err()
 
 	if err != nil {
-		log.Print("Could not retrieve the query result", err)
-		writer.WriteHeader(http.StatusInternalServerError)
-		return
+		return errors.New("Could not retrieve your tasks")
 	}
 
-	writer.WriteHeader(http.StatusOK)
-	json.NewEncoder(writer).Encode(allTasks)
+	connection.Status(fiber.StatusOK).JSON(allTasks)
+
+	return nil
 }
 
 func EditTaskService(writer http.ResponseWriter, request *http.Request, bodyBytes []byte) {
