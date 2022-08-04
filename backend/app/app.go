@@ -1,8 +1,10 @@
 package app
 
 import (
-	"github.com/gofiber/fiber/v2"
 	"log"
+	"os"
+
+	"github.com/gofiber/fiber/v2"
 )
 
 var App *fiber.App
@@ -10,6 +12,6 @@ var App *fiber.App
 func StartApp() {
 
 	App = fiber.New()
-	log.Fatal(App.Listen(":3000"))
+	log.Fatal(App.Listen(os.Getenv("PORT")))
 
 }
