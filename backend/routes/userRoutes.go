@@ -8,7 +8,7 @@ import (
 
 func InitUserRoutes() {
 	loginroute()
-	//signUpRoute()
+	signUpRoute()
 	//refreshRoute()
 	//signOutRoute()
 }
@@ -20,7 +20,7 @@ func loginroute() {
 }
 
 func signUpRoute() {
-	AddRoute("/sign-up", services.SignUpService, "POST", "OPTIONS")
+	app.AddPost("/sign-up", services.SignUpService)
 }
 
 func refreshRoute() {

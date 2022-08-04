@@ -5,12 +5,11 @@ import (
 	"backend/database"
 	"backend/models"
 	"backend/models/utils"
-	"backend/util"
+
 	"bytes"
 	"encoding/json"
 	"errors"
 
-	"log"
 	"net/http"
 
 	"github.com/gofiber/fiber/v2"
@@ -22,51 +21,41 @@ func hashPassword(password string) (string, error) {
 	return string(bytes), err
 }
 
-func SignUpService(writer http.ResponseWriter, request *http.Request) {
+func SignUpService(connection *fiber.Ctx) error {
 
-	//We enable CORS to allow the frontend to make requests
-	util.EnableCORS(&writer)
-
-	//If the requested method is options, the browser wants to negotiate CORS
-	if request.Method == http.MethodOptions {
-		//And we return 200 ok
-		writer.WriteHeader(http.StatusOK)
-		return
-	}
-
-	decoder := json.NewDecoder(request.Body)
+	decoder := json.NewDecoder(bytes.NewReader(connection.Body()))
 	var user models.User
 	var response utils.SignUpResponse
 
 	err := decoder.Decode(&user)
 
 	if err != nil {
-		log.Print("Could not decode incoming login request", err)
-		writer.WriteHeader(http.StatusInternalServerError)
-		return
+
+		connection.Status(fiber.StatusBadRequest).SendString("Malformed request received")
+		return errors.New("Bad signup request")
+
 	}
 
 	user.Password, err = hashPassword(user.Password)
 
 	if err != nil {
-		log.Print("Failed to hash a password", err)
-		writer.WriteHeader(http.StatusInternalServerError)
-		return
+		connection.Status(fiber.StatusInternalServerError).SendString("Failed to sign up, try again later")
+		return errors.New("Failed to hash password")
 	}
 
 	err = database.SignUpStatement.QueryRow(user.Email, user.Password, user.FirstName, user.LastName).Scan(&user.Email)
 
 	if err != nil {
-		log.Print("Failed to register a new user", err)
-		writer.WriteHeader(http.StatusInternalServerError)
-		return
+		connection.Status(fiber.StatusInternalServerError).SendString("Failed to sign up, try again later")
+		return errors.New("Failed to create user on database")
 	}
 
 	response.Email = user.Email
 	response.Message = "Congrats! You can now log in!"
 
-	writer.WriteHeader(http.StatusCreated)
-	json.NewEncoder(writer).Encode(response)
+	connection.Status(fiber.StatusOK).JSON(response)
+
+	return nil
 
 }
 
