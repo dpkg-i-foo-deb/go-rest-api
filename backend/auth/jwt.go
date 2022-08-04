@@ -3,16 +3,12 @@ package auth
 import (
 	"backend/models"
 	"backend/models/utils"
-
 	"errors"
-
-	"log"
-
-	"os"
-	"time"
-
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt"
+	"log"
+	"os"
+	"time"
 )
 
 type CustomClaims struct {
