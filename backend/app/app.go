@@ -61,3 +61,9 @@ func AddPatch(route string, handlers ...fiber.Handler){
 	app.Patch(route,handlers...)
 	
 }
+
+func AddDelete(route string, handlers ...fiber.Handler) {
+
+	app.Delete(route, handlers...)
+
+}
