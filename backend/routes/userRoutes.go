@@ -2,6 +2,7 @@ package routes
 
 import (
 	"backend/app"
+	"backend/auth"
 	"backend/services"
 )
 
@@ -28,5 +29,5 @@ func refreshRoute() {
 
 func signOutRoute() {
 
-	app.AddPost("/sign-out", services.SignOutService)
+	app.AddPost("/sign-out", auth.ValidateAndContinue, services.SignOutService)
 }
