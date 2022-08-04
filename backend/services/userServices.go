@@ -65,6 +65,7 @@ func LoginService(connection *fiber.Ctx) error {
 	var user models.User
 	var queriedUser models.User
 	var pair models.JWTPair
+	var response utils.GenericResponse
 
 	err := decoder.Decode(&user)
 
@@ -110,7 +111,9 @@ func LoginService(connection *fiber.Ctx) error {
 	connection.Cookie(accessCookie)
 	connection.Cookie(refreshCookie)
 
-	connection.Status(fiber.StatusOK).SendString("Welcome!")
+	response.Response = "Welcome!"
+
+	connection.Status(fiber.StatusOK).JSON(response)
 	return nil
 }
 
