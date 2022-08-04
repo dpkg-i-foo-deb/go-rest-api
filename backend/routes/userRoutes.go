@@ -23,10 +23,6 @@ func signUpRoute() {
 	app.AddPost("/sign-up", services.SignUpService)
 }
 
-func refreshRoute() {
-	AddRoute("/refresh", services.RefreshToken, "GET", "OPTIONS")
-}
-
 func signOutRoute() {
 
 	app.AddPost("/sign-out", auth.ValidateAndContinue, services.SignOutService)
