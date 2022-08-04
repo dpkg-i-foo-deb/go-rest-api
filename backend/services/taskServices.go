@@ -8,52 +8,42 @@ import (
 	"bytes"
 	"database/sql"
 	"encoding/json"
+	"errors"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"strconv"
 
+	"github.com/gofiber/fiber/v2"
 	"github.com/gorilla/mux"
 )
 
-func CreateTaskService(writer http.ResponseWriter, request *http.Request, bodyBytes []byte) {
+func CreateTaskService(connection *fiber.Ctx)error {
 
 	var task *models.Task
 	var tokenString string
-	//Use the incoming request body bytes instead of the request which is already closed
-	decoder := json.NewDecoder(ioutil.NopCloser(bytes.NewBuffer(bodyBytes)))
-
+	decoder := json.NewDecoder(ioutil.NopCloser(bytes.NewBuffer(connection.Body())))
+	var response utils.GenericResponse
 	err := decoder.Decode(&task)
 
 	if err != nil {
-		log.Print("Could not decode incoming create task request ", err)
-		writer.WriteHeader(http.StatusInternalServerError)
-		return
+		
+		response.Response="The task is malformed"
+		connection.Status(fiber.StatusBadRequest).JSON(response)
+		return nil
+
 	}
 
-	tokenString, err = auth.GetCookieValue(request, "access-token")
-
-	if err != nil {
-		log.Print("Could not retrieve the token string ", err)
-		writer.WriteHeader(http.StatusInternalServerError)
-		return
-	}
+	tokenString = connection.Cookies("access-token")
 
 	//We retrieve the token string from the request cookie
 	task.UserEmail = new(string)
 	*task.UserEmail, err = auth.EmailFromToken(tokenString)
 
 	if err != nil {
-		log.Print("Could not retrieve the user's identity ", err)
-		writer.WriteHeader(http.StatusInternalServerError)
-		return
-	}
+	
+		return errors.New("Could not create the task, try again later")
 
-	//Finally, we set the task email using the claims
-
-	if err != nil {
-		log.Print("Could not retrieve the auth cookie", err)
-		writer.WriteHeader(http.StatusInternalServerError)
 	}
 
 	err = database.CreateTaskStatement.QueryRow(
@@ -65,16 +55,13 @@ func CreateTaskService(writer http.ResponseWriter, request *http.Request, bodyBy
 	)
 
 	if err != nil {
-		log.Print("Failed to create a new task ", err)
-		writer.WriteHeader(http.StatusInternalServerError)
-		return
+	
+		return errors.New("Could not create the task, try again later")
+	
 	}
 
-	writer.WriteHeader(http.StatusCreated)
-	json.NewEncoder(writer).Encode(task)
-
-	log.Print("New task created!")
-
+	connection.Status(fiber.StatusCreated).JSON(task)
+	return nil
 }
 
 func GetTaskService(writer http.ResponseWriter, request *http.Request, bodyBytes []byte) {
