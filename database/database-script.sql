@@ -9,7 +9,7 @@ CREATE TABLE IF NOT EXISTS public.task
     description character varying COLLATE pg_catalog."default" NOT NULL,
     code integer NOT NULL GENERATED ALWAYS AS IDENTITY ( INCREMENT 1 START 1 MINVALUE 1 MAXVALUE 2147483647 CACHE 1 ),
     main_task integer,
-    "user" character varying COLLATE pg_catalog."default",
+    user_email character varying COLLATE pg_catalog."default",
     start_date date,
     due_date date,
     status boolean,
