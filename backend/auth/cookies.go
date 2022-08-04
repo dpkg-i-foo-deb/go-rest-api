@@ -3,30 +3,32 @@ package auth
 import (
 	"net/http"
 	"time"
+
+	"github.com/gofiber/fiber/v2"
 )
 
-func GenerateAccessCookie(value string) *http.Cookie {
-	accessCookie := &http.Cookie{
+func GenerateAccessCookie(value string) *fiber.Cookie {
+	accessCookie := &fiber.Cookie{
 		Name:     "access-token",
-		HttpOnly: true,
+		HTTPOnly: true,
 		Expires:  time.Now().Add(time.Minute * 15),
 		Value:    value,
 		Path:     "/",
-		SameSite: http.SameSiteNoneMode,
+		SameSite: fiber.CookieSameSiteNoneMode,
 		Secure:   true,
 	}
 
 	return accessCookie
 }
 
-func GenerateRefreshCookie(value string) *http.Cookie {
-	refreshCookie := &http.Cookie{
+func GenerateRefreshCookie(value string) *fiber.Cookie {
+	refreshCookie := &fiber.Cookie{
 		Name:     "refresh-token",
-		HttpOnly: true,
+		HTTPOnly: true,
 		Expires:  time.Now().Add(time.Hour * 24),
 		Value:    value,
 		Path:     "/",
-		SameSite: http.SameSiteNoneMode,
+		SameSite: fiber.CookieSameSiteNoneMode,
 		Secure:   true,
 	}
 
