@@ -1,14 +1,11 @@
 package main
 
 import (
+	"backend/app"
 	"backend/database"
 	"backend/routes"
-
-	"log"
-
-	"backend/app"
-
 	"github.com/joho/godotenv"
+	"log"
 )
 
 func initQueries() {
@@ -43,7 +40,6 @@ func main() {
 	database.InitDatabase()
 	initQueries()
 	initRoutes()
-
 	app.StartApp()
 
 }
