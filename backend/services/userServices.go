@@ -117,11 +117,11 @@ func LoginService(connection *fiber.Ctx) error {
 	return nil
 }
 
-func SignOutService(writer http.ResponseWriter, request *http.Request, bodyBytes []byte) {
+func SignOutService(connection *fiber.Ctx) error {
 	var response utils.GenericResponse
 
-	var newRefreshCookie *http.Cookie
-	var newAcessCookie *http.Cookie
+	var newRefreshCookie *fiber.Cookie
+	var newAcessCookie *fiber.Cookie
 
 	//Create the new cookies
 
@@ -130,15 +130,14 @@ func SignOutService(writer http.ResponseWriter, request *http.Request, bodyBytes
 
 	//Set the new cookies
 
-	http.SetCookie(writer, newAcessCookie)
-	http.SetCookie(writer, newRefreshCookie)
-
-	writer.WriteHeader(http.StatusOK)
+	connection.Cookie(newAcessCookie)
+	connection.Cookie(newRefreshCookie)
 
 	response.Response = "Signed Out..."
-	json.NewEncoder(writer).Encode(response)
 
-	return
+	connection.Status(fiber.StatusOK).JSON(response)
+
+	return nil
 
 }
 
