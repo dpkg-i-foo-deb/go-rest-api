@@ -20,8 +20,6 @@ func GenerateJWTPair(email string) (models.JWTPair, error) {
 
 	var pair models.JWTPair
 
-	log.Print("Generating new JWT pair")
-
 	claims := CustomClaims{
 		email,
 		jwt.StandardClaims{
@@ -33,7 +31,7 @@ func GenerateJWTPair(email string) (models.JWTPair, error) {
 
 	t, err := token.SignedString([]byte(os.Getenv("AUTH_KEY")))
 	if err != nil {
-		log.Print("Could not generate a JWT pair")
+
 		return pair, err
 	}
 
@@ -48,7 +46,7 @@ func GenerateJWTPair(email string) (models.JWTPair, error) {
 
 	rt, err := refreshToken.SignedString([]byte(os.Getenv("AUTH_KEY")))
 	if err != nil {
-		log.Print("Could not generate a JWT pair")
+
 		return pair, err
 	}
 
