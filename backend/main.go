@@ -40,10 +40,10 @@ func startServer() {
 
 func main() {
 
-	//initEnvironment()
+	initEnvironment()
 	//routes.InitRouter()
-	//database.InitDatabase()
-	//initQueries()
+	database.InitDatabase()
+	initQueries()
 	//initRoutes()
 	startServer()
 
