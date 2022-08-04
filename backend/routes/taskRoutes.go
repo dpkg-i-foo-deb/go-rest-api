@@ -9,6 +9,7 @@ import (
 func InitTaskRoutes() {
 	createTaskRoute()
 	getTaskRoute()
+	getAllTasksRoute()
 }
 
 func createTaskRoute() {
@@ -17,8 +18,13 @@ func createTaskRoute() {
 
 }
 
-func getTaskRoute(){
+func getTaskRoute() {
 
-	app.AddGet("/tasks/:task-code",auth.ValidateAndContinue,services.GetTaskService)
-	
+	app.AddGet("/tasks/:code", auth.ValidateAndContinue, services.GetTaskService)
+
+}
+
+func getAllTasksRoute() {
+
+	app.AddGet("/tasks", auth.ValidateAndContinue, services.GetAllTasksService)
 }
