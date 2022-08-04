@@ -31,3 +31,9 @@ func AddGet(route string, service func(connection *fiber.Ctx) error) {
 	app.Get(route, service)
 
 }
+
+func AddPost(route string, service func(connection *fiber.Ctx) error) {
+
+	app.Post(route, service)
+
+}
