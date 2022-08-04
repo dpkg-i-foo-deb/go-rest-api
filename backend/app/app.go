@@ -55,3 +55,9 @@ func AddPut(route string, handlers ...fiber.Handler) {
 	app.Put(route, handlers...)
 
 }
+
+func AddPatch(route string, handlers ...fiber.Handler){
+
+	app.Patch(route,handlers...)
+	
+}
