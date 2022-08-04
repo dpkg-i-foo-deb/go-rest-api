@@ -10,6 +10,7 @@ func InitTaskRoutes() {
 	createTaskRoute()
 	getTaskRoute()
 	getAllTasksRoute()
+	editTaskRoute()
 }
 
 func createTaskRoute() {
@@ -27,4 +28,10 @@ func getTaskRoute() {
 func getAllTasksRoute() {
 
 	app.AddGet("/tasks", auth.ValidateAndContinue, services.GetAllTasksService)
+}
+
+func editTaskRoute() {
+
+	app.AddPatch("/tasks/:code", auth.ValidateAndContinue, services.EditTaskService)
+
 }

@@ -9,14 +9,12 @@ import (
 	"database/sql"
 	"encoding/json"
 	"errors"
+	"github.com/gofiber/fiber/v2"
+	"github.com/gorilla/mux"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"strconv"
-	"time"
-
-	"github.com/gofiber/fiber/v2"
-	"github.com/gorilla/mux"
 )
 
 func CreateTaskService(connection *fiber.Ctx) error {
@@ -163,7 +161,7 @@ func GetAllTasksService(connection *fiber.Ctx) error {
 	return nil
 }
 
-func EditTaskService(connection *fiber.Ctx) {
+func EditTaskService(connection *fiber.Ctx) error {
 
 	var tokenString string
 
@@ -171,32 +169,26 @@ func EditTaskService(connection *fiber.Ctx) {
 
 	var task models.Task
 
-	taskCode, err := strconv.ParseInt(mux.Vars(request)["code"], 10, 64)
+	taskCode, err := connection.ParamsInt("code")
 
-	var errorResponse utils.GenericResponse
+	var response utils.GenericResponse
 
-	var reader = ioutil.NopCloser(bytes.NewBuffer(bodyBytes))
+	var reader = ioutil.NopCloser(bytes.NewBuffer(connection.Body()))
 
-	if err != nil {
-		log.Print("The received code is not valid")
-		writer.WriteHeader(http.StatusBadRequest)
-		return
+	if taskCode == 0 || err != nil {
+
+		response.Response = "The received parameter is not valid"
+		connection.Status(fiber.StatusBadRequest).JSON(response)
 	}
 
-	tokenString, err = auth.GetCookieValue(request, "access-token")
-
-	if err != nil {
-		log.Print("Could not retrieve the access token")
-		writer.WriteHeader(http.StatusInternalServerError)
-		return
-	}
+	tokenString = connection.Cookies("access-token")
 
 	userEmail, err = auth.EmailFromToken(tokenString)
 
 	if err != nil {
-		log.Print("The token does not contain the user email")
-		writer.WriteHeader(http.StatusBadRequest)
-		return
+
+		return errors.New("Could not get the user's email from the token")
+
 	}
 
 	decoder := json.NewDecoder(reader)
@@ -204,9 +196,8 @@ func EditTaskService(connection *fiber.Ctx) {
 	err = decoder.Decode(&task)
 
 	if err != nil {
-		log.Print("Could not decode incoming request ", err)
-		writer.WriteHeader(http.StatusBadRequest)
-		return
+		response.Response = "The task is malformed"
+		connection.Status(fiber.StatusBadRequest).JSON(response)
 	}
 
 	task.UserEmail = &userEmail
@@ -223,16 +214,12 @@ func EditTaskService(connection *fiber.Ctx) {
 	)
 
 	if err != nil {
-		log.Print("Could not update a task ", err)
-		writer.WriteHeader(http.StatusBadRequest)
-		errorResponse.Response = "Could not update the task"
-
-		json.NewEncoder(writer).Encode(errorResponse)
-		return
+		return errors.New("Could not edit the task, try again later")
 	}
 
-	writer.WriteHeader(http.StatusAccepted)
-	json.NewEncoder(writer).Encode(task)
+	connection.Status(fiber.StatusAccepted).JSON(task)
+
+	return nil
 
 }
 
