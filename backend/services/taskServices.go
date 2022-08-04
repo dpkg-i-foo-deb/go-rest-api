@@ -112,7 +112,6 @@ func GetTaskService(connection *fiber.Ctx) error {
 }
 
 func GetAllTasksService(connection *fiber.Ctx) error {
-	time.Sleep(20000000)
 	var tokenString string
 
 	var userEmail string
@@ -164,7 +163,7 @@ func GetAllTasksService(connection *fiber.Ctx) error {
 	return nil
 }
 
-func EditTaskService(writer http.ResponseWriter, request *http.Request, bodyBytes []byte) {
+func EditTaskService(connection *fiber.Ctx) {
 
 	var tokenString string
 
