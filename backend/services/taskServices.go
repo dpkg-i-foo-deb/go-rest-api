@@ -10,11 +10,7 @@ import (
 	"encoding/json"
 	"errors"
 	"github.com/gofiber/fiber/v2"
-	"github.com/gorilla/mux"
 	"io/ioutil"
-	"log"
-	"net/http"
-	"strconv"
 )
 
 func CreateTaskService(connection *fiber.Ctx) error {
@@ -223,37 +219,29 @@ func EditTaskService(connection *fiber.Ctx) error {
 
 }
 
-func DeleteTaskService(writer http.ResponseWriter, request *http.Request, bodyBytes []byte) {
+func DeleteTaskService(connection *fiber.Ctx) error {
 	var tokenString string
 
 	var userEmail string
 
 	var task models.Task
 
-	taskCode, err := strconv.ParseInt(mux.Vars(request)["code"], 10, 64)
+	taskCode, err := connection.ParamsInt("code")
 
-	var errorResponse utils.GenericResponse
+	var response utils.GenericResponse
 
-	if err != nil {
-		log.Print("The received code is not valid")
-		writer.WriteHeader(http.StatusBadRequest)
-		return
+	if taskCode == 0 || err != nil {
+		response.Response = "The received parameter is not valid"
+		connection.Status(fiber.StatusBadRequest).JSON(response)
+		return nil
 	}
 
-	tokenString, err = auth.GetCookieValue(request, "access-token")
-
-	if err != nil {
-		log.Print("Could not retrieve the access token")
-		writer.WriteHeader(http.StatusInternalServerError)
-		return
-	}
+	tokenString = connection.Cookies("access-token")
 
 	userEmail, err = auth.EmailFromToken(tokenString)
 
 	if err != nil {
-		log.Print("The token does not contain the user email")
-		writer.WriteHeader(http.StatusBadRequest)
-		return
+		return errors.New("Could not delete the task, try again later")
 	}
 
 	task.UserEmail = &userEmail
@@ -265,27 +253,15 @@ func DeleteTaskService(writer http.ResponseWriter, request *http.Request, bodyBy
 	result, err := database.DeleteTaskStatement.Exec(task.Code, task.UserEmail)
 
 	if err != nil {
-		log.Print("Could not delete a task ", err)
-		writer.WriteHeader(http.StatusNotFound)
-
-		errorResponse.Response = "Task not found or you have no access to it"
-
-		json.NewEncoder(writer).Encode(errorResponse)
-		return
+		return errors.New("Could not delete the task, try again later")
 	}
 
 	affectedRows, err := result.RowsAffected()
 
 	if err != nil || affectedRows == 0 {
-		log.Print("Could not delete a task ", err)
-		writer.WriteHeader(http.StatusNotFound)
-
-		errorResponse.Response = "Task not found or you have no access to it"
-
-		json.NewEncoder(writer).Encode(errorResponse)
-		return
+		return errors.New("Could not delete the task, try again later")
 	}
 
-	writer.WriteHeader(http.StatusOK)
-
+	connection.Status(fiber.StatusOK)
+	return nil
 }
