@@ -2,14 +2,12 @@ package main
 
 import (
 	"backend/database"
-	"backend/routes"
+
 	"log"
 
-	"github.com/gofiber/fiber/v2"
+	"backend/app"
 	"github.com/joho/godotenv"
 )
-
-var App *fiber.App
 
 func initQueries() {
 
@@ -29,17 +27,6 @@ func initEnvironment() {
 	}
 }
 
-func initRoutes() {
-	routes.InitIndexRoutes()
-	routes.InitUserRoutes()
-	routes.InitTaskRoutes()
-}
-
-func startServer() {
-	App = fiber.New()
-	log.Fatal(App.Listen(":3000"))
-}
-
 func main() {
 
 	initEnvironment()
@@ -47,6 +34,7 @@ func main() {
 	database.InitDatabase()
 	initQueries()
 	//initRoutes()
-	startServer()
+
+	app.StartApp()
 
 }
