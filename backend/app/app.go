@@ -49,3 +49,9 @@ func AddPost(route string, handlers ...fiber.Handler) {
 	app.Post(route, handlers...)
 
 }
+
+func AddPut(route string, handlers ...fiber.Handler) {
+
+	app.Put(route, handlers...)
+
+}
