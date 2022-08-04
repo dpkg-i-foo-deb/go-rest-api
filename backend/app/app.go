@@ -19,7 +19,17 @@ func InitApp() {
 		Format: "[${ip}]:${port} ${status} - ${method} ${path}\n",
 	}))
 
-	app.Use(cors.New())
+	app.Use(cors.New(cors.Config{
+	
+		AllowCredentials: true,
+		AllowOrigins:"*",
+		AllowMethods: "GET ,POST,OPTIONS,PUT,DELETE,PATCH",
+		Next: nil,
+		AllowHeaders: "",
+		ExposeHeaders: "",
+		MaxAge: 0,
+
+	}))
 
 }
 
