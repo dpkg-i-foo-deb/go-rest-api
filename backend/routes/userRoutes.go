@@ -1,19 +1,22 @@
 package routes
 
 import (
+	"backend/app"
 	"backend/auth"
 	"backend/services"
 )
 
 func InitUserRoutes() {
 	loginroute()
-	signUpRoute()
-	refreshRoute()
-	signOutRoute()
+	//signUpRoute()
+	//refreshRoute()
+	//signOutRoute()
 }
 
 func loginroute() {
-	AddRoute("/login", services.LoginService, "POST", "OPTIONS")
+
+	app.AddPost("/login", services.LoginService)
+
 }
 
 func signUpRoute() {

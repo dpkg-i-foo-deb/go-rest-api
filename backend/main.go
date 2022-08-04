@@ -32,6 +32,7 @@ func initEnvironment() {
 func initRoutes() {
 
 	routes.InitIndexRoutes()
+	routes.InitUserRoutes()
 
 }
 
@@ -39,7 +40,6 @@ func main() {
 
 	initEnvironment()
 	app.InitApp()
-	//routes.InitRouter()
 	database.InitDatabase()
 	initQueries()
 	initRoutes()
