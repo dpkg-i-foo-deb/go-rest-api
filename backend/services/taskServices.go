@@ -64,38 +64,32 @@ func CreateTaskService(connection *fiber.Ctx)error {
 	return nil
 }
 
-func GetTaskService(writer http.ResponseWriter, request *http.Request, bodyBytes []byte) {
+func GetTaskService(connection *fiber.Ctx) error {
 
-	taskCode, err := strconv.ParseInt(mux.Vars(request)["code"], 10, 64)
-
+	var taskCode int
 	var tokenString string
 
 	var userEmail string
 
 	var task models.Task
 
-	var errorResponse utils.GenericResponse
+	var response utils.GenericResponse
 
-	if err != nil {
-		log.Print("The received code is not correct")
-		writer.WriteHeader(http.StatusBadRequest)
-		return
+	taskCode, err := connection.ParamsInt("task-code")
+
+	if taskCode == 0 || err != nil {
+
+		response.Response = "The received parameter is not valid"
+		connection.Status(fiber.StatusBadRequest).JSON(response)
+		return nil
 	}
 
-	tokenString, err = auth.GetCookieValue(request, "access-token")
-
-	if err != nil {
-		log.Print("Could not retrieve the access token")
-		writer.WriteHeader(http.StatusInternalServerError)
-		return
-	}
+	tokenString = connection.Cookies("acces-token")
 
 	userEmail, err = auth.EmailFromToken(tokenString)
 
 	if err != nil {
-		log.Print("The token does not contain the user email")
-		writer.WriteHeader(http.StatusBadRequest)
-		return
+		return errors.New("Could not get the user's email from the token")
 	}
 
 	err = database.GetTaskStatement.QueryRow(
@@ -106,19 +100,14 @@ func GetTaskService(writer http.ResponseWriter, request *http.Request, bodyBytes
 	)
 
 	if err != nil {
-		log.Print("The queried task does not exist or the user has no access to it ", err)
 
-		errorResponse.Response = "The task does not exist or you have no access to it"
-
-		writer.WriteHeader(http.StatusNotFound)
-		json.NewEncoder(writer).Encode(errorResponse)
-
-		return
+		response.Response = "The task does not exist or you have no access to it"
+		connection.Status(fiber.StatusBadRequest).JSON(response)
+		return nil
 	}
 
-	writer.WriteHeader(http.StatusFound)
-	json.NewEncoder(writer).Encode(task)
-
+	connection.Status(fiber.StatusOK).JSON(task)
+	return nil
 }
 
 func GetAllTasksService(writer http.ResponseWriter, request *http.Request, bodyBytes []byte) {
