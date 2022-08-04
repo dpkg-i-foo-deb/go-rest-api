@@ -5,13 +5,9 @@ import (
 	"backend/database"
 	"backend/models"
 	"backend/models/utils"
-
 	"bytes"
 	"encoding/json"
 	"errors"
-
-	"net/http"
-
 	"github.com/gofiber/fiber/v2"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -141,6 +137,53 @@ func SignOutService(connection *fiber.Ctx) error {
 
 }
 
-func RefreshToken(writer http.ResponseWriter, request *http.Request) {
+func RefreshTokenService(connection *fiber.Ctx) error {
+
+	var response utils.GenericResponse
+	refreshToken := connection.Cookies("refresh-token")
+	var newPair models.JWTPair
+	var userEmail string
+	var newAccessCookie *fiber.Cookie
+	var newRefreshCookie *fiber.Cookie
+
+	response.Response = "The refresh token was not present"
+
+	if refreshToken == "" {
+
+		connection.Status(fiber.StatusUnauthorized).JSON(response)
+		return nil
+	}
+
+	isValid, err := auth.ValidateToken(refreshToken)
+
+	if isValid && err == nil {
+
+		userEmail, err = auth.EmailFromToken(refreshToken)
+
+		if err != nil {
+			return errors.New("Failed to refresh token, try again later")
+		}
+
+		newPair, err = auth.GenerateJWTPair(userEmail)
+
+		if err != nil {
+
+			return errors.New("Failed to refresh token, try again later")
+		}
+
+		newAccessCookie = auth.GenerateAccessCookie(newPair.Token)
+		newRefreshCookie = auth.GenerateRefreshCookie(newPair.RefreshToken)
+
+		connection.Cookie(newAccessCookie)
+		connection.Cookie(newRefreshCookie)
+
+		return nil
+
+	} else {
+		response.Response = "The refresh token has expired or is not valid"
+		connection.Status(fiber.StatusUnauthorized).JSON(response)
+		return nil
+
+	}
 
 }

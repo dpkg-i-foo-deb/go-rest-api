@@ -9,7 +9,7 @@ import (
 func InitUserRoutes() {
 	loginroute()
 	signUpRoute()
-	//refreshRoute()
+	refreshRoute()
 	signOutRoute()
 }
 
@@ -26,4 +26,9 @@ func signUpRoute() {
 func signOutRoute() {
 
 	app.AddPost("/sign-out", auth.ValidateAndContinue, services.SignOutService)
+}
+
+func refreshRoute() {
+
+	app.AddGet("/refresh", services.RefreshTokenService)
 }
