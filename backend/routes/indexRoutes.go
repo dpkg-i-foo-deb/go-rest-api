@@ -1,7 +1,7 @@
 package routes
 
 import (
-	"backend/auth"
+	"backend/app"
 	"backend/services"
 )
 
@@ -10,5 +10,5 @@ func InitIndexRoutes() {
 }
 
 func indexRoute() {
-	AddHandle("/", auth.ValidateAndContinue(services.IndexService), "GET", "OPTIONS")
+	app.AddGet("/", services.IndexService)
 }

@@ -2,10 +2,12 @@ package main
 
 import (
 	"backend/database"
+	"backend/routes"
 
 	"log"
 
 	"backend/app"
+
 	"github.com/joho/godotenv"
 )
 
@@ -27,13 +29,20 @@ func initEnvironment() {
 	}
 }
 
+func initRoutes() {
+
+	routes.InitIndexRoutes()
+
+}
+
 func main() {
 
 	initEnvironment()
+	app.InitApp()
 	//routes.InitRouter()
 	database.InitDatabase()
 	initQueries()
-	//initRoutes()
+	initRoutes()
 
 	app.StartApp()
 

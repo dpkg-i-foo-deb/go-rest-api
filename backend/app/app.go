@@ -9,9 +9,20 @@ import (
 
 var App *fiber.App
 
-func StartApp() {
+func InitApp() {
 
 	App = fiber.New()
-	log.Fatal(App.Listen(os.Getenv("PORT")))
+
+}
+
+func StartApp() {
+
+	log.Fatal(App.Listen(os.Getenv("SERVER_PORT")))
+
+}
+
+func AddGet(route string, service func(connection *fiber.Ctx) error) {
+
+	App.Get(route, service)
 
 }

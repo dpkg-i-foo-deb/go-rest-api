@@ -1,21 +1,10 @@
 package services
 
 import (
-	"backend/models/utils"
-	"encoding/json"
-	"log"
-	"net/http"
+	"github.com/gofiber/fiber/v2"
 )
 
-func IndexService(writer http.ResponseWriter, request *http.Request, bodyBytes []byte) {
+func IndexService(connection *fiber.Ctx) error {
 
-	var response utils.GenericResponse
-
-	log.Printf("Index service accessed")
-
-	response.Response = "success"
-
-	writer.WriteHeader(http.StatusOK)
-	json.NewEncoder(writer).Encode(response)
-
+	return connection.SendString("Welcome to the API!")
 }
