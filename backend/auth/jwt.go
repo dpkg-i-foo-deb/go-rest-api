@@ -95,6 +95,7 @@ func ValidateAndContinue(connection *fiber.Ctx) error {
 	isValid, err := ValidateToken(accessToken)
 
 	if isValid && err == nil {
+		connection.Next()
 		return nil
 	}
 	response.Response = "The access token is not valid or has expired"
