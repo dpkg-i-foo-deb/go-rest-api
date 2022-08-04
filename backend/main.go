@@ -9,6 +9,8 @@ import (
 	"github.com/joho/godotenv"
 )
 
+var App *fiber.App
+
 func initQueries() {
 
 	log.Print("Initializing database queries")
@@ -34,8 +36,8 @@ func initRoutes() {
 }
 
 func startServer() {
-	app := fiber.New()
-	log.Fatal(app.Listen(":3000"))
+	App = fiber.New()
+	log.Fatal(App.Listen(":3000"))
 }
 
 func main() {
