@@ -23,7 +23,7 @@ func InitApp() {
 
 		AllowCredentials: true,
 		AllowOrigins:     "*",
-		AllowMethods:     "GET ,POST,OPTIONS,PUT,DELETE,PATCH",
+		AllowMethods:     "GET,POST,OPTIONS,PUT,DELETE,PATCH",
 		Next:             nil,
 		AllowHeaders:     "",
 		ExposeHeaders:    "",
